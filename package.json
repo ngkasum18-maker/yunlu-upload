@@ -1,0 +1,18 @@
+{
+  "name": "yunlu-upload",
+  "version": "1.0.0",
+  "description": "雲路相片上載",
+  "private": true,
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "multer": "^2.0.2"
+  }
+}
