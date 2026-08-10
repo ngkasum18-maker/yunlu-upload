@@ -2,6 +2,7 @@ node_modules/
 uploads/*
 !uploads/.gitkeep
 uploads/manifest.json
+uploads/documents.json
 .DS_Store
 .env
 *.log

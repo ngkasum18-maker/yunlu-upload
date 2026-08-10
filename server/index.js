@@ -8,26 +8,27 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const ROOT = path.join(__dirname, "..");
 const UPLOAD_DIR = path.join(ROOT, "uploads");
-const META_FILE = path.join(UPLOAD_DIR, "manifest.json");
+const PHOTO_META = path.join(UPLOAD_DIR, "manifest.json");
+const DOC_META = path.join(UPLOAD_DIR, "documents.json");
 
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
-function readManifest() {
+function readJson(file) {
   try {
-    if (!fs.existsSync(META_FILE)) return [];
-    return JSON.parse(fs.readFileSync(META_FILE, "utf8"));
+    if (!fs.existsSync(file)) return [];
+    return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch {
     return [];
   }
 }
 
-function writeManifest(items) {
-  fs.writeFileSync(META_FILE, JSON.stringify(items, null, 2));
+function writeJson(file, items) {
+  fs.writeFileSync(file, JSON.stringify(items, null, 2));
 }
 
-const ALLOWED_MIME = new Set([
+const PHOTO_MIME = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
@@ -36,25 +37,51 @@ const ALLOWED_MIME = new Set([
   "image/heif",
 ]);
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase() || ".jpg";
-    const safeExt = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".heic", ".heif"].includes(ext)
-      ? ext
-      : ".jpg";
-    cb(null, `${Date.now()}-${crypto.randomBytes(6).toString("hex")}${safeExt}`);
-  },
-});
+const WORD_MIME = new Set([
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-word",
+  "application/octet-stream",
+]);
 
-const upload = multer({
-  storage,
+const WORD_EXT = new Set([".doc", ".docx"]);
+
+function makeStorage(allowedExt, fallbackExt) {
+  return multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
+    filename: (_req, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase() || fallbackExt;
+      const safeExt = allowedExt.includes(ext) ? ext : fallbackExt;
+      cb(null, `${Date.now()}-${crypto.randomBytes(6).toString("hex")}${safeExt}`);
+    },
+  });
+}
+
+const photoUpload = multer({
+  storage: makeStorage([".jpg", ".jpeg", ".png", ".webp", ".gif", ".heic", ".heif"], ".jpg"),
   limits: { fileSize: 15 * 1024 * 1024, files: 20 },
   fileFilter: (_req, file, cb) => {
-    if (ALLOWED_MIME.has(file.mimetype) || file.mimetype.startsWith("image/")) {
+    if (PHOTO_MIME.has(file.mimetype) || file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
       cb(new Error("只接受相片檔案"));
+    }
+  },
+});
+
+const docUpload = multer({
+  storage: makeStorage([".doc", ".docx"], ".docx"),
+  limits: { fileSize: 25 * 1024 * 1024, files: 10 },
+  fileFilter: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (WORD_EXT.has(ext) || WORD_MIME.has(file.mimetype)) {
+      if (!WORD_EXT.has(ext)) {
+        cb(new Error("只接受 Word 檔案（.doc / .docx）"));
+        return;
+      }
+      cb(null, true);
+    } else {
+      cb(new Error("只接受 Word 檔案（.doc / .docx）"));
     }
   },
 });
@@ -64,17 +91,17 @@ app.use(express.static(path.join(ROOT, "public")));
 app.use("/uploads", express.static(UPLOAD_DIR));
 
 app.get("/api/photos", (_req, res) => {
-  const items = readManifest().sort((a, b) => b.createdAt - a.createdAt);
+  const items = readJson(PHOTO_META).sort((a, b) => b.createdAt - a.createdAt);
   res.json({ photos: items });
 });
 
-app.post("/api/photos", upload.array("photos", 20), (req, res) => {
+app.post("/api/photos", photoUpload.array("photos", 20), (req, res) => {
   const files = req.files || [];
   if (!files.length) {
     return res.status(400).json({ error: "未揀到相片" });
   }
 
-  const manifest = readManifest();
+  const manifest = readJson(PHOTO_META);
   const added = files.map((file) => ({
     id: path.parse(file.filename).name,
     filename: file.filename,
@@ -85,12 +112,12 @@ app.post("/api/photos", upload.array("photos", 20), (req, res) => {
     createdAt: Date.now(),
   }));
 
-  writeManifest([...added, ...manifest]);
+  writeJson(PHOTO_META, [...added, ...manifest]);
   res.status(201).json({ photos: added });
 });
 
 app.delete("/api/photos/:id", (req, res) => {
-  const manifest = readManifest();
+  const manifest = readJson(PHOTO_META);
   const photo = manifest.find((p) => p.id === req.params.id);
   if (!photo) {
     return res.status(404).json({ error: "搵唔到相片" });
@@ -101,14 +128,62 @@ app.delete("/api/photos/:id", (req, res) => {
     fs.unlinkSync(filePath);
   }
 
-  writeManifest(manifest.filter((p) => p.id !== req.params.id));
+  writeJson(
+    PHOTO_META,
+    manifest.filter((p) => p.id !== req.params.id)
+  );
+  res.json({ ok: true });
+});
+
+app.get("/api/documents", (_req, res) => {
+  const items = readJson(DOC_META).sort((a, b) => b.createdAt - a.createdAt);
+  res.json({ documents: items });
+});
+
+app.post("/api/documents", docUpload.array("documents", 10), (req, res) => {
+  const files = req.files || [];
+  if (!files.length) {
+    return res.status(400).json({ error: "未揀到 Word 檔案" });
+  }
+
+  const manifest = readJson(DOC_META);
+  const added = files.map((file) => ({
+    id: path.parse(file.filename).name,
+    filename: file.filename,
+    originalName: file.originalname,
+    size: file.size,
+    mimeType: file.mimetype,
+    url: `/uploads/${file.filename}`,
+    createdAt: Date.now(),
+  }));
+
+  writeJson(DOC_META, [...added, ...manifest]);
+  res.status(201).json({ documents: added });
+});
+
+app.delete("/api/documents/:id", (req, res) => {
+  const manifest = readJson(DOC_META);
+  const doc = manifest.find((d) => d.id === req.params.id);
+  if (!doc) {
+    return res.status(404).json({ error: "搵唔到文件" });
+  }
+
+  const filePath = path.join(UPLOAD_DIR, doc.filename);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+
+  writeJson(
+    DOC_META,
+    manifest.filter((d) => d.id !== req.params.id)
+  );
   res.json({ ok: true });
 });
 
 app.use((err, _req, res, _next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === "LIMIT_FILE_SIZE") {
-      return res.status(400).json({ error: "檔案太大，上限 15MB" });
+      return res.status(400).json({ error: "檔案太大，超過上限" });
     }
     return res.status(400).json({ error: err.message });
   }
