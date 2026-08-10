@@ -253,12 +253,48 @@ main {
   color: var(--mist);
 }
 
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.filter {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--mist) 35%, transparent);
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--mist);
+  background: rgba(15, 24, 18, 0.35);
+  cursor: pointer;
+  transition:
+    background 0.25s var(--ease),
+    border-color 0.25s var(--ease),
+    color 0.25s var(--ease);
+}
+
+.filter:hover {
+  border-color: color-mix(in srgb, var(--jade-bright) 55%, transparent);
+  color: var(--fog);
+}
+
+.filter.is-active {
+  color: var(--ink);
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--fog), #d7e6d8);
+}
+
 .gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 0.85rem;
 }
 
+.file-card,
 .photo-card {
   position: relative;
   aspect-ratio: 1;
@@ -280,6 +316,7 @@ main {
   }
 }
 
+.file-card img,
 .photo-card img {
   width: 100%;
   height: 100%;
@@ -289,10 +326,74 @@ main {
   cursor: zoom-in;
 }
 
+.file-card.is-photo:hover img,
 .photo-card:hover img {
   transform: scale(1.04);
 }
 
+.file-card.is-doc {
+  background:
+    linear-gradient(160deg, rgba(196, 168, 110, 0.16), rgba(21, 32, 24, 0.55)),
+    rgba(18, 28, 22, 0.85);
+  border: 1px solid color-mix(in srgb, var(--mist) 18%, transparent);
+}
+
+.doc-body {
+  height: 100%;
+  display: grid;
+  align-content: space-between;
+  gap: 0.65rem;
+  padding: 1rem;
+}
+
+.doc-badge {
+  width: fit-content;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--ink);
+  background: linear-gradient(135deg, #e8d7a8, #c4a86e);
+  border-radius: 6px;
+  padding: 0.28rem 0.5rem;
+}
+
+.doc-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--fog);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+
+.doc-meta {
+  margin: 0;
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--mist) 85%, transparent);
+}
+
+.doc-open {
+  width: fit-content;
+  color: var(--fog);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--fog) 45%, transparent);
+  padding-bottom: 0.1rem;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.doc-open:hover {
+  color: #fff;
+  border-color: #fff;
+}
+
+.file-card .delete,
 .photo-card .delete {
   position: absolute;
   top: 0.5rem;
@@ -314,6 +415,8 @@ main {
     transform 0.25s var(--ease);
 }
 
+.file-card:hover .delete,
+.file-card:focus-within .delete,
 .photo-card:hover .delete,
 .photo-card:focus-within .delete {
   opacity: 1;
@@ -370,6 +473,7 @@ main {
     font-size: clamp(3.6rem, 18vw, 5rem);
   }
 
+  .file-card .delete,
   .photo-card .delete {
     opacity: 1;
     transform: none;

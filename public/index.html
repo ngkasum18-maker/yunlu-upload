@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>雲路 Yunlu — 上載相片</title>
-    <meta name="description" content="雲路相片上載——輕鬆拖放，即刻保存。" />
+    <title>雲路 Yunlu — 上載相片同 Word</title>
+    <meta name="description" content="雲路上載——相片同 Word 文件，雲端保存、瀏覽同刪除。" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -24,22 +24,22 @@
       <section class="hero" aria-labelledby="brand-title">
         <div class="hero-copy">
           <h1 id="brand-title" class="brand">雲路</h1>
-          <p class="tagline">把畫面留低。拖放相片，即刻上載。</p>
+          <p class="tagline">相片同 Word，一齊上載到雲端，隨時瀏覽同刪除。</p>
         </div>
 
-        <form id="upload-form" class="dropzone" aria-label="上載相片">
+        <form id="upload-form" class="dropzone" aria-label="上載檔案">
           <input
             id="file-input"
             type="file"
-            name="photos"
-            accept="image/*"
+            name="files"
+            accept="image/*,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             multiple
             hidden
           />
           <div class="dropzone-inner">
-            <p class="dropzone-title">拖放相片到呢度</p>
-            <p class="dropzone-hint">或者撳下面掣由相簿揀</p>
-            <button type="button" class="cta" id="pick-btn">揀相片</button>
+            <p class="dropzone-title">拖放檔案到呢度</p>
+            <p class="dropzone-hint">支援相片（JPG、PNG、WebP、GIF）同 Word（DOC、DOCX）</p>
+            <button type="button" class="cta" id="pick-btn">揀檔案</button>
           </div>
           <div class="progress" id="progress" hidden>
             <div class="progress-bar" id="progress-bar"></div>
@@ -52,11 +52,18 @@
 
       <section class="gallery-section" aria-labelledby="gallery-title">
         <div class="section-head">
-          <h2 id="gallery-title">你嘅相冊</h2>
-          <p class="section-sub">剛上載嘅相會出現喺呢度</p>
+          <h2 id="gallery-title">雲端檔案庫</h2>
+          <p class="section-sub">剛上載嘅相片同 Word 會出現喺呢度</p>
         </div>
+
+        <div class="filter-row" role="tablist" aria-label="檔案類型">
+          <button type="button" class="filter is-active" data-filter="all" role="tab" aria-selected="true">全部</button>
+          <button type="button" class="filter" data-filter="photo" role="tab" aria-selected="false">相片</button>
+          <button type="button" class="filter" data-filter="document" role="tab" aria-selected="false">Word</button>
+        </div>
+
         <div id="gallery" class="gallery"></div>
-        <p id="empty" class="empty" hidden>暫時未有相片。試下上載第一張。</p>
+        <p id="empty" class="empty" hidden>暫時未有檔案。試下上載第一個。</p>
       </section>
     </main>
 

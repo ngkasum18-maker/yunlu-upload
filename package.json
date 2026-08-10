@@ -1,7 +1,7 @@
 {
   "name": "yunlu-upload",
   "version": "1.0.0",
-  "description": "雲路相片上載",
+  "description": "雲路相片同 Word 上載",
   "private": true,
   "main": "server/index.js",
   "scripts": {

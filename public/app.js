@@ -10,6 +10,11 @@ const empty = document.getElementById("empty");
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
 const lightboxClose = document.getElementById("lightbox-close");
+const filterButtons = document.querySelectorAll(".filter");
+
+const WORD_EXTS = [".doc", ".docx"];
+let allFiles = [];
+let activeFilter = "all";
 
 function setStatus(message, kind = "") {
   statusEl.textContent = message;
@@ -23,27 +28,100 @@ function formatBytes(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-async function loadPhotos() {
-  const res = await fetch("/api/photos");
-  if (!res.ok) throw new Error("讀取相冊失敗");
-  const data = await res.json();
-  renderGallery(data.photos || []);
+function formatDate(ts) {
+  try {
+    return new Intl.DateTimeFormat("zh-HK", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(ts));
+  } catch {
+    return "";
+  }
 }
 
-function renderGallery(photos) {
+function isWordFile(file) {
+  const name = (file.name || "").toLowerCase();
+  return (
+    WORD_EXTS.some((ext) => name.endsWith(ext)) ||
+    file.type === "application/msword" ||
+    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  );
+}
+
+function isAllowedUpload(file) {
+  return file.type.startsWith("image/") || isWordFile(file);
+}
+
+function fileKind(item) {
+  if (item.kind) return item.kind;
+  const name = (item.originalName || item.filename || "").toLowerCase();
+  if (WORD_EXTS.some((ext) => name.endsWith(ext))) return "document";
+  return "photo";
+}
+
+async function loadFiles() {
+  const res = await fetch("/api/files");
+  if (!res.ok) throw new Error("讀取檔案庫失敗");
+  const data = await res.json();
+  allFiles = data.files || [];
+  renderGallery();
+}
+
+function renderGallery() {
   gallery.innerHTML = "";
-  empty.hidden = photos.length > 0;
+  const files = allFiles.filter((item) => activeFilter === "all" || fileKind(item) === activeFilter);
+  empty.hidden = files.length > 0;
 
-  for (const photo of photos) {
+  if (!files.length) {
+    empty.textContent =
+      activeFilter === "document"
+        ? "暫時未有 Word 文件。"
+        : activeFilter === "photo"
+          ? "暫時未有相片。"
+          : "暫時未有檔案。試下上載第一個。";
+  }
+
+  for (const item of files) {
+    const kind = fileKind(item);
     const card = document.createElement("article");
-    card.className = "photo-card";
-    card.dataset.id = photo.id;
+    card.className = kind === "document" ? "file-card is-doc" : "file-card is-photo";
+    card.dataset.id = item.id;
 
-    const img = document.createElement("img");
-    img.src = photo.url;
-    img.alt = photo.originalName || "上載相片";
-    img.loading = "lazy";
-    img.addEventListener("click", () => openLightbox(photo.url, img.alt));
+    if (kind === "photo") {
+      const img = document.createElement("img");
+      img.src = item.url;
+      img.alt = item.originalName || "上載相片";
+      img.loading = "lazy";
+      img.addEventListener("click", () => openLightbox(item.url, img.alt));
+      card.appendChild(img);
+    } else {
+      const body = document.createElement("div");
+      body.className = "doc-body";
+
+      const badge = document.createElement("span");
+      badge.className = "doc-badge";
+      badge.textContent = "WORD";
+
+      const title = document.createElement("p");
+      title.className = "doc-title";
+      title.textContent = item.originalName || "Word 文件";
+
+      const meta = document.createElement("p");
+      meta.className = "doc-meta";
+      meta.textContent = `${formatBytes(item.size || 0)} · ${formatDate(item.createdAt)}`;
+
+      const open = document.createElement("a");
+      open.className = "doc-open";
+      open.href = item.url;
+      open.download = item.originalName || "";
+      open.textContent = "下載 / 開啟";
+
+      body.append(badge, title, meta, open);
+      card.appendChild(body);
+    }
 
     const del = document.createElement("button");
     del.type = "button";
@@ -51,10 +129,10 @@ function renderGallery(photos) {
     del.textContent = "刪除";
     del.addEventListener("click", (e) => {
       e.stopPropagation();
-      deletePhoto(photo.id);
+      deleteFile(item.id, kind);
     });
 
-    card.append(img, del);
+    card.appendChild(del);
     gallery.appendChild(card);
   }
 }
@@ -70,35 +148,42 @@ lightbox.addEventListener("click", (e) => {
   if (e.target === lightbox) lightbox.close();
 });
 
-async function deletePhoto(id) {
-  const res = await fetch(`/api/photos/${encodeURIComponent(id)}`, {
+async function deleteFile(id, kind) {
+  const label = kind === "document" ? "Word 文件" : "相片";
+  const confirmed = window.confirm(`確定刪除呢個${label}？`);
+  if (!confirmed) return;
+
+  const res = await fetch(`/api/files/${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
   if (!res.ok) {
     setStatus("刪除失敗，請再試", "is-error");
     return;
   }
-  setStatus("已刪除相片", "is-ok");
-  await loadPhotos();
+  setStatus(`已刪除${label}`, "is-ok");
+  await loadFiles();
 }
 
 function uploadFiles(files) {
-  const list = Array.from(files).filter((f) => f.type.startsWith("image/"));
+  const list = Array.from(files).filter(isAllowedUpload);
   if (!list.length) {
-    setStatus("請揀相片檔案（JPG、PNG、WebP 等）", "is-error");
+    setStatus("請揀相片或 Word 文件（DOC、DOCX）", "is-error");
     return;
   }
 
   const formData = new FormData();
-  for (const file of list) formData.append("photos", file);
+  for (const file of list) formData.append("files", file);
+
+  const photoCount = list.filter((f) => f.type.startsWith("image/")).length;
+  const docCount = list.length - photoCount;
 
   progress.hidden = false;
   progressBar.style.width = "8%";
-  progressLabel.textContent = `上載緊 ${list.length} 張…`;
+  progressLabel.textContent = `上載緊 ${list.length} 個檔案…`;
   setStatus("");
 
   const xhr = new XMLHttpRequest();
-  xhr.open("POST", "/api/photos");
+  xhr.open("POST", "/api/files");
 
   xhr.upload.addEventListener("progress", (e) => {
     if (!e.lengthComputable) return;
@@ -117,10 +202,12 @@ function uploadFiles(files) {
     }
 
     if (xhr.status >= 200 && xhr.status < 300) {
-      const count = (payload.photos || []).length;
-      setStatus(`成功上載 ${count} 張相片`, "is-ok");
+      const parts = [];
+      if (photoCount) parts.push(`${photoCount} 張相片`);
+      if (docCount) parts.push(`${docCount} 份 Word`);
+      setStatus(`成功上載 ${parts.join("、")}`, "is-ok");
       fileInput.value = "";
-      await loadPhotos();
+      await loadFiles();
     } else {
       setStatus(payload.error || "上載失敗", "is-error");
     }
@@ -138,6 +225,18 @@ function uploadFiles(files) {
 
   xhr.send(formData);
 }
+
+filterButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    activeFilter = btn.dataset.filter || "all";
+    filterButtons.forEach((other) => {
+      const selected = other === btn;
+      other.classList.toggle("is-active", selected);
+      other.setAttribute("aria-selected", selected ? "true" : "false");
+    });
+    renderGallery();
+  });
+});
 
 pickBtn.addEventListener("click", () => fileInput.click());
 fileInput.addEventListener("change", () => {
@@ -165,7 +264,7 @@ form.addEventListener("drop", (e) => {
 
 form.addEventListener("submit", (e) => e.preventDefault());
 
-loadPhotos().catch(() => {
-  setStatus("暫時讀唔到相冊", "is-error");
+loadFiles().catch(() => {
+  setStatus("暫時讀唔到檔案庫", "is-error");
   empty.hidden = false;
 });
