@@ -59,7 +59,26 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   padding: 1.25rem clamp(1.25rem, 4vw, 3rem);
+}
+
+.nav {
+  display: flex;
+  gap: 1.1rem;
+}
+
+.nav a {
+  color: var(--mist);
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition: color 0.25s var(--ease);
+}
+
+.nav a:hover {
+  color: var(--fog);
 }
 
 .logo {
@@ -325,6 +344,93 @@ main {
   color: color-mix(in srgb, var(--mist) 80%, transparent);
 }
 
+.docs-section {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid color-mix(in srgb, var(--mist) 18%, transparent);
+  animation: rise 1s var(--ease) 0.2s both;
+}
+
+.dropzone-docs {
+  margin: 0 0 1rem;
+}
+
+.doc-list {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.doc-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--mist) 14%, transparent);
+  animation: rise 0.45s var(--ease) both;
+}
+
+.doc-meta {
+  min-width: 0;
+}
+
+.doc-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--fog);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.doc-detail {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--mist);
+}
+
+.doc-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.55rem;
+}
+
+.doc-link,
+.doc-delete {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.2s var(--ease),
+    background 0.2s var(--ease);
+}
+
+.doc-link {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--fog) 88%, white);
+}
+
+.doc-delete {
+  color: var(--sand);
+  background: color-mix(in srgb, var(--danger) 72%, #1a1210);
+}
+
+.doc-link:hover,
+.doc-delete:hover {
+  transform: translateY(-1px);
+}
+
 .lightbox {
   border: 0;
   padding: 0;
@@ -373,6 +479,15 @@ main {
   .photo-card .delete {
     opacity: 1;
     transform: none;
+  }
+
+  .doc-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .doc-name {
+    white-space: normal;
   }
 }
 

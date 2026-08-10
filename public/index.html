@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>雲路 Yunlu — 上載相片</title>
-    <meta name="description" content="雲路相片上載——輕鬆拖放，即刻保存。" />
+    <title>雲路 Yunlu — 上載相片同 Word</title>
+    <meta name="description" content="雲路上載——相片同 Word 文件，雲端保存，隨時拆除。" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,13 +18,17 @@
 
     <header class="topbar">
       <a class="logo" href="/">雲路 <span>Yunlu</span></a>
+      <nav class="nav" aria-label="頁面導航">
+        <a href="#photos">相片</a>
+        <a href="#documents">Word</a>
+      </nav>
     </header>
 
     <main>
-      <section class="hero" aria-labelledby="brand-title">
+      <section class="hero" id="photos" aria-labelledby="brand-title">
         <div class="hero-copy">
           <h1 id="brand-title" class="brand">雲路</h1>
-          <p class="tagline">把畫面留低。拖放相片，即刻上載。</p>
+          <p class="tagline">把畫面同文件留低。上載後存喺雲端，唔要就可以拆除。</p>
         </div>
 
         <form id="upload-form" class="dropzone" aria-label="上載相片">
@@ -57,6 +61,38 @@
         </div>
         <div id="gallery" class="gallery"></div>
         <p id="empty" class="empty" hidden>暫時未有相片。試下上載第一張。</p>
+      </section>
+
+      <section class="docs-section" id="documents" aria-labelledby="docs-title">
+        <div class="section-head">
+          <h2 id="docs-title">Word 文件</h2>
+          <p class="section-sub">上載 .doc / .docx，存喺雲端，隨時下載或者拆除</p>
+        </div>
+
+        <form id="doc-form" class="dropzone dropzone-docs" aria-label="上載 Word 文件">
+          <input
+            id="doc-input"
+            type="file"
+            name="documents"
+            accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            multiple
+            hidden
+          />
+          <div class="dropzone-inner">
+            <p class="dropzone-title">拖放 Word 到呢度</p>
+            <p class="dropzone-hint">支援 .doc、.docx，單一檔案上限 25MB</p>
+            <button type="button" class="cta" id="doc-pick-btn">揀 Word 檔</button>
+          </div>
+          <div class="progress" id="doc-progress" hidden>
+            <div class="progress-bar" id="doc-progress-bar"></div>
+            <p class="progress-label" id="doc-progress-label">上載緊…</p>
+          </div>
+        </form>
+
+        <p class="status" id="doc-status" role="status" aria-live="polite"></p>
+
+        <ul id="doc-list" class="doc-list" aria-label="已上載 Word 文件"></ul>
+        <p id="doc-empty" class="empty" hidden>暫時未有 Word 文件。試下上載第一份。</p>
       </section>
     </main>
 

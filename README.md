@@ -1,6 +1,6 @@
-# 雲路 Yunlu — 相片上載
+# 雲路 Yunlu — 相片同 Word 上載
 
-簡單嘅相片上載網站：拖放或揀相，即刻保存，並喺相冊瀏覽。
+簡單嘅上載網站：拖放或揀檔，存喺雲端（伺服器 `uploads/`），並可隨時拆除。
 
 ## 快速開始
 
@@ -20,9 +20,11 @@ npm run dev
 ## 功能
 
 - 拖放 / 點選上載多張相片（JPG、PNG、WebP、GIF 等）
+- 上載 Word 文件（`.doc` / `.docx`），存喺雲端
 - 上載進度顯示
-- 相冊預覽、放大同刪除
-- 相片存喺本機 `uploads/` 目錄
+- 相冊預覽、放大同拆除
+- Word 列表、下載同拆除
+- 檔案存喺本機 `uploads/` 目錄
 
 ## API
 
@@ -30,4 +32,7 @@ npm run dev
 |--------|------|------|
 | `GET` | `/api/photos` | 列出所有相片 |
 | `POST` | `/api/photos` | 上載相片（`multipart/form-data`，欄位名 `photos`） |
-| `DELETE` | `/api/photos/:id` | 刪除相片 |
+| `DELETE` | `/api/photos/:id` | 拆除相片 |
+| `GET` | `/api/documents` | 列出所有 Word 文件 |
+| `POST` | `/api/documents` | 上載 Word（`multipart/form-data`，欄位名 `documents`） |
+| `DELETE` | `/api/documents/:id` | 拆除 Word 文件 |
