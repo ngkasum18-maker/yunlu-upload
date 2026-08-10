@@ -78,9 +78,15 @@
     </main>
 
     <dialog id="lightbox" class="lightbox">
-      <button type="button" class="lightbox-close" id="lightbox-close" aria-label="關閉">
-        關閉
-      </button>
+      <div class="lightbox-toolbar">
+        <p class="lightbox-name" id="lightbox-name"></p>
+        <div class="lightbox-actions">
+          <a class="lightbox-download" id="lightbox-download" href="#" download>下載</a>
+          <button type="button" class="lightbox-close" id="lightbox-close" aria-label="關閉">
+            關閉
+          </button>
+        </div>
+      </div>
       <img id="lightbox-img" alt="" />
     </dialog>
 

@@ -11,6 +11,8 @@ const empty = document.getElementById("empty");
 const fileCountEl = document.getElementById("file-count");
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
+const lightboxName = document.getElementById("lightbox-name");
+const lightboxDownload = document.getElementById("lightbox-download");
 const lightboxClose = document.getElementById("lightbox-close");
 const filterButtons = document.querySelectorAll(".filter");
 
@@ -126,13 +128,14 @@ function renderGallery() {
     card.dataset.id = item.id;
 
     const displayName = item.originalName || (kind === "document" ? "Word 文件" : "上載相片");
+    const downloadUrl = `/api/files/${encodeURIComponent(item.id)}/download`;
 
     if (kind === "photo") {
       const img = document.createElement("img");
       img.src = item.url;
       img.alt = displayName;
       img.loading = "lazy";
-      img.addEventListener("click", () => openLightbox(item.url, displayName));
+      img.addEventListener("click", () => openLightbox(item, displayName, downloadUrl));
 
       const caption = document.createElement("p");
       caption.className = "file-name";
@@ -159,13 +162,24 @@ function renderGallery() {
 
       const open = document.createElement("a");
       open.className = "doc-open";
-      open.href = `/api/files/${encodeURIComponent(item.id)}/download`;
+      open.href = downloadUrl;
       open.download = displayName;
-      open.textContent = "下載 / 開啟";
+      open.textContent = "下載文件";
 
       body.append(badge, title, meta, open);
       card.appendChild(body);
     }
+
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+
+    const download = document.createElement("a");
+    download.className = "download";
+    download.href = downloadUrl;
+    download.download = displayName;
+    download.textContent = "下載";
+    download.title = `下載 ${displayName}`;
+    download.addEventListener("click", (e) => e.stopPropagation());
 
     const del = document.createElement("button");
     del.type = "button";
@@ -176,14 +190,24 @@ function renderGallery() {
       deleteFile(item.id, kind);
     });
 
-    card.appendChild(del);
+    actions.append(download, del);
+    card.appendChild(actions);
     gallery.appendChild(card);
   }
 }
 
-function openLightbox(src, alt) {
-  lightboxImg.src = src;
+function openLightbox(item, alt, downloadUrl) {
+  lightboxImg.src = item.url || item;
   lightboxImg.alt = alt;
+  if (lightboxName) {
+    lightboxName.textContent = alt;
+    lightboxName.title = alt;
+  }
+  if (lightboxDownload) {
+    lightboxDownload.href = downloadUrl || "#";
+    lightboxDownload.download = alt || "download";
+    lightboxDownload.hidden = !downloadUrl;
+  }
   lightbox.showModal();
 }
 

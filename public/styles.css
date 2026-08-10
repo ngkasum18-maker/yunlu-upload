@@ -388,6 +388,15 @@ main {
   pointer-events: none;
 }
 
+.card-actions {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.35rem;
+  z-index: 2;
+}
+
 .file-card.is-doc {
   background:
     linear-gradient(160deg, rgba(196, 168, 110, 0.16), rgba(21, 32, 24, 0.55)),
@@ -450,11 +459,9 @@ main {
   border-color: #fff;
 }
 
+.file-card .download,
 .file-card .delete,
 .photo-card .delete {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
   border: 0;
   border-radius: 999px;
   padding: 0.35rem 0.7rem;
@@ -465,14 +472,22 @@ main {
   background: rgba(20, 28, 22, 0.72);
   backdrop-filter: blur(6px);
   cursor: pointer;
+  text-decoration: none;
   opacity: 0;
   transform: translateY(-4px);
   transition:
     opacity 0.25s var(--ease),
-    transform 0.25s var(--ease);
+    transform 0.25s var(--ease),
+    background 0.2s var(--ease);
 }
 
+.file-card .download:hover {
+  background: rgba(47, 143, 106, 0.85);
+}
+
+.file-card:hover .download,
 .file-card:hover .delete,
+.file-card:focus-within .download,
 .file-card:focus-within .delete,
 .photo-card:hover .delete,
 .photo-card:focus-within .delete {
@@ -498,17 +513,41 @@ main {
   backdrop-filter: blur(4px);
 }
 
+.lightbox-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.lightbox-name {
+  margin: 0;
+  min-width: 0;
+  flex: 1;
+  color: var(--fog);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lightbox-actions {
+  display: flex;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
 .lightbox img {
   display: block;
   max-width: 92vw;
-  max-height: 82vh;
+  max-height: 78vh;
   margin: 0 auto;
   border-radius: 10px;
 }
 
+.lightbox-download,
 .lightbox-close {
-  display: block;
-  margin: 0 0 0.75rem auto;
   border: 0;
   border-radius: 999px;
   padding: 0.45rem 0.9rem;
@@ -517,6 +556,12 @@ main {
   color: var(--sand);
   background: rgba(255, 255, 255, 0.12);
   cursor: pointer;
+  text-decoration: none;
+}
+
+.lightbox-download:hover,
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 @media (max-width: 640px) {
@@ -530,6 +575,7 @@ main {
     font-size: clamp(3.6rem, 18vw, 5rem);
   }
 
+  .file-card .download,
   .file-card .delete,
   .photo-card .delete {
     opacity: 1;
