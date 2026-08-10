@@ -8,8 +8,9 @@
   --sand: #f3eee4;
   --glow: rgba(47, 143, 106, 0.28);
   --danger: #9b3a2f;
-  --font-display: "Fraunces", "Noto Serif TC", Georgia, serif;
-  --font-body: "Noto Sans TC", "PingFang HK", "Helvetica Neue", sans-serif;
+  --font-display: "PingFang HK", "Noto Serif TC", "Songti TC", Georgia, serif;
+  --font-body: "PingFang HK", "Noto Sans TC", "Microsoft JhengHei",
+    "Helvetica Neue", sans-serif;
   --radius: 18px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }

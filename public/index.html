@@ -5,13 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>雲路 Yunlu — 上載相片</title>
     <meta name="description" content="雲路相片上載——輕鬆拖放，即刻保存。" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+TC:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
     <link rel="stylesheet" href="/styles.css" />
+    <style>
+      /* 緊急後備：即使 styles.css 載唔到都顯示基本畫面 */
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #152018;
+        color: #f3eee4;
+        font-family: "PingFang HK", "Noto Sans TC", "Microsoft JhengHei",
+          "Helvetica Neue", sans-serif;
+      }
+      .brand {
+        font-size: clamp(3.6rem, 14vw, 8rem);
+        margin: 0;
+      }
+      .dropzone {
+        border: 1.5px dashed #c5d6c8;
+        border-radius: 18px;
+        padding: 1.5rem;
+        max-width: 34rem;
+      }
+      .cta {
+        border: 0;
+        border-radius: 999px;
+        padding: 0.85rem 1.5rem;
+        background: #e7efe6;
+        color: #152018;
+        font-weight: 600;
+      }
+    </style>
   </head>
   <body>
     <div class="atmosphere" aria-hidden="true"></div>
