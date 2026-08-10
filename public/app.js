@@ -8,6 +8,7 @@ const progressBar = document.getElementById("progress-bar");
 const progressLabel = document.getElementById("progress-label");
 const gallery = document.getElementById("gallery");
 const empty = document.getElementById("empty");
+const fileCountEl = document.getElementById("file-count");
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
 const lightboxClose = document.getElementById("lightbox-close");
@@ -71,10 +72,43 @@ async function loadFiles() {
   renderGallery();
 }
 
+function countByKind() {
+  let photos = 0;
+  let documents = 0;
+  for (const item of allFiles) {
+    if (fileKind(item) === "document") documents += 1;
+    else photos += 1;
+  }
+  return { total: allFiles.length, photos, documents };
+}
+
+function updateFileCounts() {
+  const { total, photos, documents } = countByKind();
+
+  const countNodes = document.querySelectorAll(".filter-count");
+  countNodes.forEach((node) => {
+    const key = node.dataset.count;
+    if (key === "photo") node.textContent = String(photos);
+    else if (key === "document") node.textContent = String(documents);
+    else node.textContent = String(total);
+  });
+
+  if (!fileCountEl) return;
+
+  if (activeFilter === "photo") {
+    fileCountEl.textContent = `相片合共 ${photos} 個檔案`;
+  } else if (activeFilter === "document") {
+    fileCountEl.textContent = `Word 合共 ${documents} 個檔案`;
+  } else {
+    fileCountEl.textContent = `合共 ${total} 個檔案（相片 ${photos} · Word ${documents}）`;
+  }
+}
+
 function renderGallery() {
   gallery.innerHTML = "";
   const files = allFiles.filter((item) => activeFilter === "all" || fileKind(item) === activeFilter);
   empty.hidden = files.length > 0;
+  updateFileCounts();
 
   if (!files.length) {
     empty.textContent =

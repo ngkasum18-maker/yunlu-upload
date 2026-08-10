@@ -57,12 +57,19 @@
         <div class="section-head">
           <h2 id="gallery-title">雲端檔案庫</h2>
           <p class="section-sub">剛上載嘅相片同 Word 會出現喺呢度</p>
+          <p class="file-count" id="file-count" aria-live="polite">合共 0 個檔案</p>
         </div>
 
         <div class="filter-row" role="tablist" aria-label="檔案類型">
-          <button type="button" class="filter is-active" data-filter="all" role="tab" aria-selected="true">全部</button>
-          <button type="button" class="filter" data-filter="photo" role="tab" aria-selected="false">相片</button>
-          <button type="button" class="filter" data-filter="document" role="tab" aria-selected="false">Word</button>
+          <button type="button" class="filter is-active" data-filter="all" role="tab" aria-selected="true">
+            全部 <span class="filter-count" data-count="all">0</span>
+          </button>
+          <button type="button" class="filter" data-filter="photo" role="tab" aria-selected="false">
+            相片 <span class="filter-count" data-count="photo">0</span>
+          </button>
+          <button type="button" class="filter" data-filter="document" role="tab" aria-selected="false">
+            Word <span class="filter-count" data-count="document">0</span>
+          </button>
         </div>
 
         <div id="gallery" class="gallery"></div>

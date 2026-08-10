@@ -273,6 +273,14 @@ main {
   color: var(--mist);
 }
 
+.file-count {
+  margin: 0.75rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--fog);
+  letter-spacing: 0.01em;
+}
+
 .filter-row {
   display: flex;
   flex-wrap: wrap;
@@ -306,6 +314,18 @@ main {
   color: var(--ink);
   border-color: transparent;
   background: linear-gradient(135deg, var(--fog), #d7e6d8);
+}
+
+.filter-count {
+  display: inline-block;
+  min-width: 1.2em;
+  margin-left: 0.2rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.filter.is-active .filter-count {
+  opacity: 1;
 }
 
 .gallery {
