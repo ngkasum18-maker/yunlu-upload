@@ -36,17 +36,81 @@ function kindFrom(mimeType, ext) {
   return "photo";
 }
 
+/**
+ * Browsers/multer often send non-ASCII names as Latin-1 bytes of UTF-8,
+ * or as percent-encoded strings. Normalize to real Unicode (e.g. 中文檔名).
+ */
+function decodeOriginalName(name) {
+  if (!name || typeof name !== "string") return name || "";
+
+  let decoded = name.trim();
+
+  try {
+    if (/%[0-9A-Fa-f]{2}/.test(decoded)) {
+      decoded = decodeURIComponent(decoded.replace(/\+/g, "%20"));
+    }
+  } catch {
+    // keep current value
+  }
+
+  const hasCjk = /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/.test(decoded);
+  if (!hasCjk) {
+    try {
+      const asUtf8 = Buffer.from(decoded, "latin1").toString("utf8");
+      if (
+        asUtf8 &&
+        asUtf8 !== decoded &&
+        !asUtf8.includes("\uFFFD") &&
+        /[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]/.test(asUtf8)
+      ) {
+        decoded = asUtf8;
+      }
+    } catch {
+      // keep current value
+    }
+  }
+
+  // Strip path segments some clients include
+  decoded = decoded.replace(/^.*[/\\]/, "");
+  return decoded || name;
+}
+
+function contentDisposition(filename) {
+  const fallback = String(filename || "file")
+    .replace(/[^\x20-\x7E]/g, "_")
+    .replace(/["\\]/g, "_") || "file";
+  const encoded = encodeURIComponent(filename || "file").replace(
+    /[!'()*]/g,
+    (ch) => `%${ch.charCodeAt(0).toString(16).toUpperCase()}`
+  );
+  return `attachment; filename="${fallback}"; filename*=UTF-8''${encoded}`;
+}
+
 function readManifest() {
   try {
     if (!fs.existsSync(META_FILE)) return [];
-    return JSON.parse(fs.readFileSync(META_FILE, "utf8"));
+    const items = JSON.parse(fs.readFileSync(META_FILE, "utf8"));
+    if (!Array.isArray(items)) return [];
+
+    let changed = false;
+    const normalized = items.map((item) => {
+      const originalName = decodeOriginalName(item.originalName || item.filename || "");
+      if (originalName && originalName !== item.originalName) {
+        changed = true;
+        return { ...item, originalName };
+      }
+      return item;
+    });
+
+    if (changed) writeManifest(normalized);
+    return normalized;
   } catch {
     return [];
   }
 }
 
 function writeManifest(items) {
-  fs.writeFileSync(META_FILE, JSON.stringify(items, null, 2));
+  fs.writeFileSync(META_FILE, JSON.stringify(items, null, 2), "utf8");
 }
 
 function extForFile(file) {
@@ -99,7 +163,7 @@ function toRecord(file) {
   return {
     id: path.parse(file.filename).name,
     filename: file.filename,
-    originalName: file.originalname,
+    originalName: decodeOriginalName(file.originalname),
     size: file.size,
     mimeType: file.mimetype,
     kind: kindFrom(file.mimetype, ext),
@@ -135,6 +199,22 @@ function deleteById(id) {
 app.use(express.json());
 app.use(express.static(path.join(ROOT, "public")));
 app.use("/uploads", express.static(UPLOAD_DIR));
+
+app.get("/api/files/:id/download", (req, res) => {
+  const item = listFiles().find((entry) => entry.id === req.params.id);
+  if (!item) {
+    return res.status(404).json({ error: "搵唔到檔案" });
+  }
+
+  const filePath = path.join(UPLOAD_DIR, item.filename);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "檔案已唔存在" });
+  }
+
+  res.setHeader("Content-Type", item.mimeType || "application/octet-stream");
+  res.setHeader("Content-Disposition", contentDisposition(item.originalName || item.filename));
+  res.sendFile(filePath);
+});
 
 app.get("/api/files", (_req, res) => {
   res.json({ files: listFiles() });

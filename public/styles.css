@@ -351,6 +351,23 @@ main {
   transform: scale(1.04);
 }
 
+.file-card.is-photo .file-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 1.6rem 0.55rem 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--fog);
+  background: linear-gradient(to top, rgba(10, 16, 12, 0.88), transparent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
 .file-card.is-doc {
   background:
     linear-gradient(160deg, rgba(196, 168, 110, 0.16), rgba(21, 32, 24, 0.55)),

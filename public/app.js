@@ -91,13 +91,21 @@ function renderGallery() {
     card.className = kind === "document" ? "file-card is-doc" : "file-card is-photo";
     card.dataset.id = item.id;
 
+    const displayName = item.originalName || (kind === "document" ? "Word 文件" : "上載相片");
+
     if (kind === "photo") {
       const img = document.createElement("img");
       img.src = item.url;
-      img.alt = item.originalName || "上載相片";
+      img.alt = displayName;
       img.loading = "lazy";
-      img.addEventListener("click", () => openLightbox(item.url, img.alt));
-      card.appendChild(img);
+      img.addEventListener("click", () => openLightbox(item.url, displayName));
+
+      const caption = document.createElement("p");
+      caption.className = "file-name";
+      caption.title = displayName;
+      caption.textContent = displayName;
+
+      card.append(img, caption);
     } else {
       const body = document.createElement("div");
       body.className = "doc-body";
@@ -108,7 +116,8 @@ function renderGallery() {
 
       const title = document.createElement("p");
       title.className = "doc-title";
-      title.textContent = item.originalName || "Word 文件";
+      title.title = displayName;
+      title.textContent = displayName;
 
       const meta = document.createElement("p");
       meta.className = "doc-meta";
@@ -116,8 +125,8 @@ function renderGallery() {
 
       const open = document.createElement("a");
       open.className = "doc-open";
-      open.href = item.url;
-      open.download = item.originalName || "";
+      open.href = `/api/files/${encodeURIComponent(item.id)}/download`;
+      open.download = displayName;
       open.textContent = "下載 / 開啟";
 
       body.append(badge, title, meta, open);
