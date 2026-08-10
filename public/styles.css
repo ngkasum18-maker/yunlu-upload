@@ -171,6 +171,12 @@ main {
   font-size: 0.95rem;
 }
 
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
 .cta {
   appearance: none;
   border: 0;
@@ -185,7 +191,9 @@ main {
   transition:
     transform 0.25s var(--ease),
     box-shadow 0.25s var(--ease),
-    background 0.25s var(--ease);
+    background 0.25s var(--ease),
+    border-color 0.25s var(--ease),
+    color 0.25s var(--ease);
 }
 
 .cta:hover {
@@ -196,6 +204,18 @@ main {
 
 .cta:active {
   transform: translateY(0);
+}
+
+.cta-secondary {
+  color: var(--fog);
+  background: transparent;
+  border: 1.5px solid color-mix(in srgb, var(--mist) 55%, transparent);
+}
+
+.cta-secondary:hover {
+  color: var(--ink);
+  border-color: transparent;
+  background: linear-gradient(135deg, #ffffff, var(--fog));
 }
 
 .progress {

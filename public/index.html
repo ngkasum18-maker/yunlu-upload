@@ -38,8 +38,11 @@
           />
           <div class="dropzone-inner">
             <p class="dropzone-title">拖放或貼上檔案</p>
-            <p class="dropzone-hint">支援相片同 Word；可用 Ctrl/⌘ + V 貼上（截圖都得）</p>
-            <button type="button" class="cta" id="pick-btn">揀檔案</button>
+            <p class="dropzone-hint">支援相片同 Word；撳「貼上」或用 Ctrl/⌘ + V（截圖都得）</p>
+            <div class="cta-row">
+              <button type="button" class="cta" id="pick-btn">揀檔案</button>
+              <button type="button" class="cta cta-secondary" id="paste-btn">貼上</button>
+            </div>
           </div>
           <div class="progress" id="progress" hidden>
             <div class="progress-bar" id="progress-bar"></div>

@@ -1,6 +1,7 @@
 const form = document.getElementById("upload-form");
 const fileInput = document.getElementById("file-input");
 const pickBtn = document.getElementById("pick-btn");
+const pasteBtn = document.getElementById("paste-btn");
 const statusEl = document.getElementById("status");
 const progress = document.getElementById("progress");
 const progressBar = document.getElementById("progress-bar");
@@ -239,6 +240,9 @@ filterButtons.forEach((btn) => {
 });
 
 pickBtn.addEventListener("click", () => fileInput.click());
+pasteBtn.addEventListener("click", () => {
+  pasteFromClipboard();
+});
 fileInput.addEventListener("change", () => {
   if (fileInput.files?.length) uploadFiles(fileInput.files);
 });
@@ -264,11 +268,32 @@ form.addEventListener("drop", (e) => {
 
 form.addEventListener("submit", (e) => e.preventDefault());
 
+function extensionForType(type) {
+  if (type === "image/jpeg") return "jpg";
+  if (type === "image/webp") return "webp";
+  if (type === "image/gif") return "gif";
+  if (type.includes("word") || type.includes("officedocument")) return "docx";
+  if (type === "application/msword") return "doc";
+  return "png";
+}
+
+function normalizePastedFile(file) {
+  if (!file) return null;
+  if (file.name && file.name !== "image.png" && file.name !== "blob") {
+    return file;
+  }
+  const ext = extensionForType(file.type || "image/png");
+  return new File([file], `paste-${Date.now()}.${ext}`, {
+    type: file.type || "image/png",
+    lastModified: Date.now(),
+  });
+}
+
 function filesFromClipboard(clipboardData) {
   if (!clipboardData) return [];
 
   if (clipboardData.files?.length) {
-    return Array.from(clipboardData.files);
+    return Array.from(clipboardData.files).map(normalizePastedFile).filter(Boolean);
   }
 
   const items = clipboardData.items ? Array.from(clipboardData.items) : [];
@@ -276,32 +301,65 @@ function filesFromClipboard(clipboardData) {
 
   for (const item of items) {
     if (item.kind !== "file") continue;
-    const file = item.getAsFile();
-    if (!file) continue;
-
-    // Screenshots often arrive as unnamed blobs; give them a usable name.
-    if (!file.name || file.name === "image.png" || file.name === "blob") {
-      const ext =
-        file.type === "image/jpeg"
-          ? "jpg"
-          : file.type === "image/webp"
-            ? "webp"
-            : file.type === "image/gif"
-              ? "gif"
-              : file.type.includes("word") || file.type.includes("officedocument")
-                ? "docx"
-                : "png";
-      const stamped = new File([file], `paste-${Date.now()}.${ext}`, {
-        type: file.type || "image/png",
-        lastModified: Date.now(),
-      });
-      files.push(stamped);
-    } else {
-      files.push(file);
-    }
+    const file = normalizePastedFile(item.getAsFile());
+    if (file) files.push(file);
   }
 
   return files;
+}
+
+function flashDropzone() {
+  form.classList.add("is-dragover");
+  setTimeout(() => form.classList.remove("is-dragover"), 350);
+}
+
+async function filesFromClipboardApi() {
+  if (!navigator.clipboard?.read) {
+    throw new Error("呢個瀏覽器唔支援撳掣貼上，請改用 Ctrl/⌘ + V");
+  }
+
+  const items = await navigator.clipboard.read();
+  const files = [];
+
+  for (const item of items) {
+    const types = item.types || [];
+    const preferred =
+      types.find((t) => t.startsWith("image/")) ||
+      types.find((t) => t.includes("word") || t.includes("officedocument")) ||
+      types.find((t) => t !== "text/plain" && t !== "text/html");
+
+    if (!preferred) continue;
+
+    const blob = await item.getType(preferred);
+    const file = normalizePastedFile(
+      new File([blob], `paste-${Date.now()}.${extensionForType(preferred)}`, {
+        type: preferred,
+        lastModified: Date.now(),
+      })
+    );
+    if (file) files.push(file);
+  }
+
+  return files;
+}
+
+async function pasteFromClipboard() {
+  try {
+    const files = await filesFromClipboardApi();
+    if (!files.length) {
+      setStatus("剪貼簿冇相片或 Word 檔案。請先複製再試。", "is-error");
+      return;
+    }
+    flashDropzone();
+    uploadFiles(files);
+  } catch (err) {
+    const message = String(err?.message || err || "");
+    if (/denied|permission|not allowed/i.test(message)) {
+      setStatus("請允許瀏覽器讀取剪貼簿，或者改用 Ctrl/⌘ + V", "is-error");
+      return;
+    }
+    setStatus(message || "貼上失敗，請改用 Ctrl/⌘ + V", "is-error");
+  }
 }
 
 document.addEventListener("paste", (e) => {
@@ -318,8 +376,7 @@ document.addEventListener("paste", (e) => {
   if (!files.length) return;
 
   e.preventDefault();
-  form.classList.add("is-dragover");
-  setTimeout(() => form.classList.remove("is-dragover"), 350);
+  flashDropzone();
   uploadFiles(files);
 });
 
