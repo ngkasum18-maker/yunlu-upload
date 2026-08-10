@@ -264,6 +264,65 @@ form.addEventListener("drop", (e) => {
 
 form.addEventListener("submit", (e) => e.preventDefault());
 
+function filesFromClipboard(clipboardData) {
+  if (!clipboardData) return [];
+
+  if (clipboardData.files?.length) {
+    return Array.from(clipboardData.files);
+  }
+
+  const items = clipboardData.items ? Array.from(clipboardData.items) : [];
+  const files = [];
+
+  for (const item of items) {
+    if (item.kind !== "file") continue;
+    const file = item.getAsFile();
+    if (!file) continue;
+
+    // Screenshots often arrive as unnamed blobs; give them a usable name.
+    if (!file.name || file.name === "image.png" || file.name === "blob") {
+      const ext =
+        file.type === "image/jpeg"
+          ? "jpg"
+          : file.type === "image/webp"
+            ? "webp"
+            : file.type === "image/gif"
+              ? "gif"
+              : file.type.includes("word") || file.type.includes("officedocument")
+                ? "docx"
+                : "png";
+      const stamped = new File([file], `paste-${Date.now()}.${ext}`, {
+        type: file.type || "image/png",
+        lastModified: Date.now(),
+      });
+      files.push(stamped);
+    } else {
+      files.push(file);
+    }
+  }
+
+  return files;
+}
+
+document.addEventListener("paste", (e) => {
+  const target = e.target;
+  if (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    (target instanceof HTMLElement && target.isContentEditable)
+  ) {
+    return;
+  }
+
+  const files = filesFromClipboard(e.clipboardData);
+  if (!files.length) return;
+
+  e.preventDefault();
+  form.classList.add("is-dragover");
+  setTimeout(() => form.classList.remove("is-dragover"), 350);
+  uploadFiles(files);
+});
+
 loadFiles().catch(() => {
   setStatus("暫時讀唔到檔案庫", "is-error");
   empty.hidden = false;

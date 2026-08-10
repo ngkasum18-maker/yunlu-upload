@@ -19,7 +19,7 @@ npm run dev
 
 ## 功能
 
-- 拖放 / 點選上載相片（JPG、PNG、WebP、GIF 等）同 Word（DOC、DOCX）
+- 拖放 / 點選 / 貼上（Ctrl/⌘ + V）上載相片（JPG、PNG、WebP、GIF 等）同 Word（DOC、DOCX）
 - 上載進度顯示
 - 雲端檔案庫：篩選全部／相片／Word
 - 相片預覽放大；Word 可下載／開啟
