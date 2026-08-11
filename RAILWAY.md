@@ -4,11 +4,14 @@
 
 ## 一鍵部署
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fngkasum18-maker%2Fyunlu-upload%2Ftree%2Fcursor%2Fphoto-word-cloud-files-94c0&envs=DATA_DIR%2CNODE_ENV&DATA_DIRDefault=%2Fdata&NODE_ENVDefault=production&referralCode=yunlu)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fngkasum18-maker%2Fyunlu-upload%2Ftree%2Fcursor%2Frailway-one-click-deploy-94c0&envs=DATA_DIR%2CNODE_ENV&DATA_DIRDefault=%2Fdata&NODE_ENVDefault=production)
 
 或者直接打開：
 
-**https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fngkasum18-maker%2Fyunlu-upload%2Ftree%2Fcursor%2Fphoto-word-cloud-files-94c0&envs=DATA_DIR%2CNODE_ENV&DATA_DIRDefault=%2Fdata&NODE_ENVDefault=production**
+**https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fngkasum18-maker%2Fyunlu-upload%2Ftree%2Fcursor%2Frailway-one-click-deploy-94c0&envs=DATA_DIR%2CNODE_ENV&DATA_DIRDefault=%2Fdata&NODE_ENVDefault=production**
+
+（合併到 `main` 之後，亦可改用：  
+`https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fngkasum18-maker%2Fyunlu-upload&envs=DATA_DIR%2CNODE_ENV&DATA_DIRDefault=%2Fdata&NODE_ENVDefault=production`）
 
 ## 部署後必做（永久保存上載檔）
 
