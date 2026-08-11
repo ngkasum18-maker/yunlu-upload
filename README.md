@@ -11,13 +11,19 @@ npm start
 
 開瀏覽器去 [http://localhost:3000](http://localhost:3000)。
 
+## 正式網站（永久）
+
+**https://yunlu-upload.onrender.com**
+
+呢個係永久網址：可以上載相片／Word、瀏覽、閱讀、下載、刪除，並可「安裝 App」。  
+資料存在 Render 永久磁碟（`DATA_DIR=/var/data`）。
+
 ## GitHub 設定
 
 詳細步驟見 [`GITHUB_SETUP.md`](./GITHUB_SETUP.md)。
 
 - Repo：https://github.com/ngkasum18-maker/yunlu-upload （Public）
-- 先合併 Railway PR：https://github.com/ngkasum18-maker/yunlu-upload/pull/5
-- 再用 GitHub 登入 Railway 做一鍵部署
+- Railway 一鍵部署見下方（可選）
 
 ## 永久雲端部署（推薦 Railway 一鍵）
 
