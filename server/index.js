@@ -7,7 +7,10 @@ const crypto = require("crypto");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const ROOT = path.join(__dirname, "..");
-const UPLOAD_DIR = path.join(ROOT, "uploads");
+const DATA_DIR = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(ROOT, "uploads");
+const UPLOAD_DIR = DATA_DIR;
 const META_FILE = path.join(UPLOAD_DIR, "manifest.json");
 
 if (!fs.existsSync(UPLOAD_DIR)) {
@@ -276,6 +279,15 @@ app.delete("/api/photos/:id", (req, res) => {
   res.json({ ok: true });
 });
 
+app.get("/api/health", (_req, res) => {
+  res.json({
+    ok: true,
+    service: "yunlu-upload",
+    dataDir: UPLOAD_DIR,
+    files: readManifest().length,
+  });
+});
+
 app.use((err, _req, res, _next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === "LIMIT_FILE_SIZE") {
@@ -286,6 +298,7 @@ app.use((err, _req, res, _next) => {
   res.status(400).json({ error: err.message || "上載失敗" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Yunlu upload running at http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Yunlu upload running at http://0.0.0.0:${PORT}`);
+  console.log(`Data directory: ${UPLOAD_DIR}`);
 });
