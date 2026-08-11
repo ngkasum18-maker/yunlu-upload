@@ -473,6 +473,9 @@ main {
 }
 
 .file-card.is-doc {
+  aspect-ratio: auto;
+  min-height: 160px;
+  height: 100%;
   background:
     linear-gradient(160deg, rgba(196, 168, 110, 0.16), rgba(21, 32, 24, 0.55)),
     rgba(18, 28, 22, 0.85);
@@ -482,9 +485,11 @@ main {
 .doc-body {
   height: 100%;
   display: grid;
-  align-content: space-between;
+  grid-template-rows: auto 1fr auto auto;
+  align-content: start;
   gap: 0.65rem;
   padding: 1rem;
+  padding-top: 2.6rem;
 }
 
 .doc-badge {
@@ -501,14 +506,13 @@ main {
 .doc-title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 500;
-  line-height: 1.3;
+  line-height: 1.35;
   color: var(--fog);
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+  overflow: visible;
+  white-space: normal;
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 
@@ -526,12 +530,109 @@ main {
   text-decoration: none;
   border-bottom: 1px solid color-mix(in srgb, var(--fog) 45%, transparent);
   padding-bottom: 0.1rem;
-  transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
 }
 
-.doc-open:hover {
-  color: #fff;
-  border-color: #fff;
+.reader {
+  border: 0;
+  padding: 0;
+  width: min(94vw, 820px);
+  max-height: 90vh;
+  background: transparent;
+}
+
+.reader::backdrop {
+  background: rgba(8, 12, 10, 0.82);
+  backdrop-filter: blur(4px);
+}
+
+.reader-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.reader-title {
+  margin: 0;
+  min-width: 0;
+  flex: 1;
+  color: var(--fog);
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reader-actions {
+  display: flex;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.reader-download,
+.reader-close {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--sand);
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.reader-download:hover,
+.reader-close:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.reader-body {
+  max-height: min(78vh, 720px);
+  overflow: auto;
+  border-radius: 14px;
+  background: #f7f4ec;
+  color: #1a1a1a;
+  padding: 1.25rem 1.2rem 1.5rem;
+}
+
+.reader-status {
+  margin: 0;
+  color: #4a4a4a;
+}
+
+.reader-status.is-error {
+  color: #9b3a2f;
+}
+
+.reader-content {
+  font-family: "Noto Sans TC", "PingFang HK", "Helvetica Neue", sans-serif;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.reader-content h1,
+.reader-content h2,
+.reader-content h3 {
+  line-height: 1.3;
+  margin: 1.1em 0 0.45em;
+}
+
+.reader-content p {
+  margin: 0 0 0.85em;
+}
+
+.reader-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.reader-note {
+  margin: 1rem 0 0;
+  font-size: 0.8rem;
+  color: #6a6a6a;
 }
 
 .file-card .download,
