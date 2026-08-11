@@ -11,6 +11,14 @@ npm start
 
 開瀏覽器去 [http://localhost:3000](http://localhost:3000)。
 
+## GitHub 設定
+
+詳細步驟見 [`GITHUB_SETUP.md`](./GITHUB_SETUP.md)。
+
+- Repo：https://github.com/ngkasum18-maker/yunlu-upload （Public）
+- 先合併 Railway PR：https://github.com/ngkasum18-maker/yunlu-upload/pull/5
+- 再用 GitHub 登入 Railway 做一鍵部署
+
 ## 永久雲端部署（推薦 Railway 一鍵）
 
 臨時試用連結（trycloudflare）會過期。要**永久上載同保存資料**，請用 Railway：
