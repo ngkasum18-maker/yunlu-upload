@@ -99,6 +99,19 @@
       <img id="lightbox-img" alt="" />
     </dialog>
 
+    <dialog id="reader" class="reader" aria-labelledby="reader-title">
+      <div class="reader-toolbar">
+        <p class="reader-title" id="reader-title"></p>
+        <div class="reader-actions">
+          <a class="reader-download" id="reader-download" href="#" download>下載</a>
+          <button type="button" class="reader-close" id="reader-close" aria-label="關閉">關閉</button>
+        </div>
+      </div>
+      <div class="reader-body" id="reader-body" tabindex="0">
+        <p class="reader-status" id="reader-status">載入緊…</p>
+      </div>
+    </dialog>
+
     <dialog id="install-dialog" class="install-dialog" aria-labelledby="install-dialog-title">
       <form method="dialog" class="install-dialog-inner">
         <h2 id="install-dialog-title">安裝雲路 App</h2>
@@ -112,6 +125,7 @@
       </form>
     </dialog>
 
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.9.0/mammoth.browser.min.js"></script>
     <script src="/app.js"></script>
   </body>
 </html>

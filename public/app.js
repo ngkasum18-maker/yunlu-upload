@@ -14,6 +14,12 @@ const lightboxImg = document.getElementById("lightbox-img");
 const lightboxName = document.getElementById("lightbox-name");
 const lightboxDownload = document.getElementById("lightbox-download");
 const lightboxClose = document.getElementById("lightbox-close");
+const reader = document.getElementById("reader");
+const readerTitle = document.getElementById("reader-title");
+const readerBody = document.getElementById("reader-body");
+const readerStatus = document.getElementById("reader-status");
+const readerDownload = document.getElementById("reader-download");
+const readerClose = document.getElementById("reader-close");
 const filterButtons = document.querySelectorAll(".filter");
 
 const WORD_EXTS = [".doc", ".docx"];
@@ -126,16 +132,18 @@ function renderGallery() {
     const card = document.createElement("article");
     card.className = kind === "document" ? "file-card is-doc" : "file-card is-photo";
     card.dataset.id = item.id;
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
 
     const displayName = item.originalName || (kind === "document" ? "Word 文件" : "上載相片");
     const downloadUrl = `/api/files/${encodeURIComponent(item.id)}/download`;
+    card.setAttribute("aria-label", `開啟閱讀 ${displayName}`);
 
     if (kind === "photo") {
       const img = document.createElement("img");
       img.src = item.url;
       img.alt = displayName;
       img.loading = "lazy";
-      img.addEventListener("click", () => openLightbox(item, displayName, downloadUrl));
 
       const caption = document.createElement("p");
       caption.className = "file-name";
@@ -160,15 +168,29 @@ function renderGallery() {
       meta.className = "doc-meta";
       meta.textContent = `${formatBytes(item.size || 0)} · ${formatDate(item.createdAt)}`;
 
-      const open = document.createElement("a");
-      open.className = "doc-open";
-      open.href = downloadUrl;
-      open.download = displayName;
-      open.textContent = "下載文件";
+      const hint = document.createElement("p");
+      hint.className = "doc-open";
+      hint.textContent = "撳開閱讀";
 
-      body.append(badge, title, meta, open);
+      body.append(badge, title, meta, hint);
       card.appendChild(body);
     }
+
+    const openForRead = () => {
+      if (kind === "photo") openLightbox(item, displayName, downloadUrl);
+      else openDocumentReader(item, displayName, downloadUrl);
+    };
+
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".card-actions")) return;
+      openForRead();
+    });
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openForRead();
+      }
+    });
 
     const actions = document.createElement("div");
     actions.className = "card-actions";
@@ -211,10 +233,75 @@ function openLightbox(item, alt, downloadUrl) {
   lightbox.showModal();
 }
 
+function isDocxFile(item) {
+  const name = (item.originalName || item.filename || "").toLowerCase();
+  return name.endsWith(".docx") || (item.mimeType || "").includes("wordprocessingml");
+}
+
+async function ensureMammoth() {
+  if (window.mammoth?.convertToHtml) return window.mammoth;
+  throw new Error("閱讀器未載入，請刷新頁面再試");
+}
+
+async function openDocumentReader(item, displayName, downloadUrl) {
+  if (!reader || !readerBody) {
+    window.open(item.url, "_blank", "noopener");
+    return;
+  }
+
+  readerTitle.textContent = displayName;
+  readerTitle.title = displayName;
+  readerDownload.href = downloadUrl;
+  readerDownload.download = displayName;
+  readerBody.innerHTML = "";
+  const status = document.createElement("p");
+  status.className = "reader-status";
+  status.textContent = "載入緊文件…";
+  readerBody.appendChild(status);
+  reader.showModal();
+
+  try {
+    if (!isDocxFile(item)) {
+      status.innerHTML =
+        "呢個係舊格式 .doc，瀏覽器入面唔可以直接閱讀。<br>請撳上面「下載」用 Word／Pages 開啟。";
+      return;
+    }
+
+    const mammoth = await ensureMammoth();
+    const res = await fetch(item.url);
+    if (!res.ok) throw new Error("讀取文件失敗");
+    const buffer = await res.arrayBuffer();
+    const result = await mammoth.convertToHtml({ arrayBuffer: buffer });
+    readerBody.innerHTML = "";
+    const article = document.createElement("article");
+    article.className = "reader-content";
+    article.innerHTML = result.value || "<p>（文件冇可見文字）</p>";
+    readerBody.appendChild(article);
+    if (result.messages?.length) {
+      const note = document.createElement("p");
+      note.className = "reader-note";
+      note.textContent = "部份格式可能同 Word 略有不同。";
+      readerBody.appendChild(note);
+    }
+  } catch (err) {
+    status.textContent = err?.message || "打唔開呢份文件，請改用下載。";
+    status.classList.add("is-error");
+  }
+}
+
 lightboxClose.addEventListener("click", () => lightbox.close());
 lightbox.addEventListener("click", (e) => {
   if (e.target === lightbox) lightbox.close();
 });
+
+if (readerClose) {
+  readerClose.addEventListener("click", () => reader.close());
+}
+if (reader) {
+  reader.addEventListener("click", (e) => {
+    if (e.target === reader) reader.close();
+  });
+}
 
 async function deleteFile(id, kind) {
   const label = kind === "document" ? "Word 文件" : "相片";

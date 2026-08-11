@@ -417,6 +417,7 @@ main {
   background: rgba(255, 255, 255, 0.04);
   isolation: isolate;
   animation: pop 0.45s var(--ease) both;
+  cursor: pointer;
 }
 
 @keyframes pop {
