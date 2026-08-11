@@ -454,6 +454,9 @@ loadFiles().catch(() => {
 
 /* ---------- Progressive Web App (installable) ---------- */
 const installBtn = document.getElementById("install-btn");
+const installDialog = document.getElementById("install-dialog");
+const installDialogLead = document.getElementById("install-dialog-lead");
+const installSteps = document.getElementById("install-steps");
 let deferredInstallPrompt = null;
 
 function isStandaloneApp() {
@@ -463,34 +466,134 @@ function isStandaloneApp() {
   );
 }
 
-function showInstallHelp() {
-  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  if (isIOS) {
-    setStatus("iPhone／iPad：用 Safari 開，撳分享掣 →「加到主畫面」", "is-ok");
-    return;
-  }
-  setStatus("請用瀏覽器選單入面嘅「安裝應用程式」或「加到主畫面」", "is-ok");
+function detectPlatform() {
+  const ua = navigator.userAgent || "";
+  const isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isAndroid = /android/i.test(ua);
+  const isSafari = /safari/i.test(ua) && !/chrome|crios|fxios|edg/i.test(ua);
+  const isChromium = /chrome|crios|edg|chromium/i.test(ua) && !/fxios/i.test(ua);
+  return { isIOS, isAndroid, isSafari, isChromium };
 }
 
+function installGuideForPlatform() {
+  const { isIOS, isAndroid, isSafari, isChromium } = detectPlatform();
+
+  if (isIOS) {
+    return {
+      lead: isSafari
+        ? "iPhone／iPad 要用 Safari 先可以加到主畫面。"
+        : "請改用 Safari 打開呢個網站，然後跟住下面步驟。",
+      steps: [
+        "撳底欄（或頂欄）嘅「分享」掣 ▢↑",
+        "向下搵並撳「加到主畫面」",
+        "再撳「加入」完成安裝",
+      ],
+    };
+  }
+
+  if (isAndroid) {
+    return {
+      lead: "Android 可以將雲路安裝成 App。",
+      steps: [
+        "撳瀏覽器右上角「⋮」選單",
+        "揀「安裝應用程式」或「加到主畫面」",
+        "確認安裝後，主畫面會出現「雲路」圖示",
+      ],
+    };
+  }
+
+  if (isChromium) {
+    return {
+      lead: "電腦 Chrome／Edge 可以安裝雲路 App。",
+      steps: [
+        "撳網址列右側嘅安裝圖示（電腦圖／＋）",
+        "或者打開選單 →「安裝雲路…」／「應用程式」→「安裝呢個網站作為應用程式」",
+        "安裝後可喺開始選單／Launchpad 開啟",
+      ],
+    };
+  }
+
+  return {
+    lead: "你可以將雲路加到主畫面當 App 用。",
+    steps: [
+      "打開瀏覽器選單",
+      "揀「安裝應用程式」或「加到主畫面」",
+      "確認後用主畫面圖示開啟雲路",
+    ],
+  };
+}
+
+function showInstallDialog(extraLead = "") {
+  if (!installDialog || !installSteps) {
+    setStatus("請用瀏覽器選單「加到主畫面」安裝 App", "is-ok");
+    return;
+  }
+
+  const guide = installGuideForPlatform();
+  if (installDialogLead) {
+    installDialogLead.textContent = extraLead ? `${extraLead} ${guide.lead}` : guide.lead;
+  }
+  installSteps.innerHTML = "";
+  for (const step of guide.steps) {
+    const li = document.createElement("li");
+    li.textContent = step;
+    installSteps.appendChild(li);
+  }
+
+  if (typeof installDialog.showModal === "function") {
+    installDialog.showModal();
+  } else {
+    setStatus(guide.steps.join(" → "), "is-ok");
+  }
+}
+
+async function handleInstallClick() {
+  setStatus("準備安裝…", "is-ok");
+
+  if (isStandaloneApp()) {
+    setStatus("你而家已經用緊雲路 App", "is-ok");
+    installBtn.hidden = true;
+    return;
+  }
+
+  if (deferredInstallPrompt) {
+    try {
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      if (choice.outcome === "accepted") {
+        setStatus("已開始安裝雲路 App", "is-ok");
+        installBtn.hidden = true;
+        return;
+      }
+      setStatus("已取消自動安裝", "is-ok");
+      showInstallDialog("你取消咗自動安裝。");
+      return;
+    } catch {
+      deferredInstallPrompt = null;
+      showInstallDialog("自動安裝失敗。");
+      return;
+    }
+  }
+
+  showInstallDialog("呢個瀏覽器冇自動安裝彈窗。");
+}
 if (installBtn) {
   if (isStandaloneApp()) {
     installBtn.hidden = true;
   } else {
     installBtn.hidden = false;
-    installBtn.addEventListener("click", async () => {
-      if (!deferredInstallPrompt) {
-        showInstallHelp();
-        return;
-      }
-      deferredInstallPrompt.prompt();
-      const choice = await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-      installBtn.hidden = true;
-      if (choice.outcome === "accepted") {
-        setStatus("已開始安裝雲路 App", "is-ok");
-      }
+    installBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      handleInstallClick();
     });
   }
+}
+
+if (installDialog) {
+  installDialog.addEventListener("click", (e) => {
+    if (e.target === installDialog) installDialog.close();
+  });
 }
 
 window.addEventListener("beforeinstallprompt", (e) => {
@@ -498,19 +601,21 @@ window.addEventListener("beforeinstallprompt", (e) => {
   deferredInstallPrompt = e;
   if (installBtn && !isStandaloneApp()) {
     installBtn.hidden = false;
+    installBtn.textContent = "安裝 App";
   }
 });
 
 window.addEventListener("appinstalled", () => {
   deferredInstallPrompt = null;
   if (installBtn) installBtn.hidden = true;
+  if (installDialog?.open) installDialog.close();
   setStatus("雲路 App 已安裝到裝置", "is-ok");
 });
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {
-      // Ignore SW registration failures in unsupported environments.
+    navigator.serviceWorker.register("/sw.js").catch((err) => {
+      console.warn("Service worker registration failed", err);
     });
   });
 }

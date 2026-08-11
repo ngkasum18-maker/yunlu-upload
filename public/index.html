@@ -26,7 +26,7 @@
 
     <header class="topbar">
       <a class="logo" href="/">雲路 <span>Yunlu</span></a>
-      <button type="button" class="install-btn" id="install-btn" hidden>安裝 App</button>
+      <button type="button" class="install-btn" id="install-btn">安裝 App</button>
     </header>
 
     <main>
@@ -97,6 +97,19 @@
         </div>
       </div>
       <img id="lightbox-img" alt="" />
+    </dialog>
+
+    <dialog id="install-dialog" class="install-dialog" aria-labelledby="install-dialog-title">
+      <form method="dialog" class="install-dialog-inner">
+        <h2 id="install-dialog-title">安裝雲路 App</h2>
+        <p class="install-dialog-lead" id="install-dialog-lead">
+          將雲路加到主畫面，之後可以好似 App 咁開啟。
+        </p>
+        <ol class="install-steps" id="install-steps"></ol>
+        <div class="install-dialog-actions">
+          <button type="submit" class="cta" value="close">知道咗</button>
+        </div>
+      </form>
     </dialog>
 
     <script src="/app.js"></script>
