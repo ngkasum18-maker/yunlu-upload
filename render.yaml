@@ -1,0 +1,21 @@
+# Permanent cloud deploy for 雲路 Yunlu
+# One-click: https://render.com/deploy?repo=https://github.com/ngkasum18-maker/yunlu-upload
+
+services:
+  - type: web
+    name: yunlu-upload
+    runtime: node
+    plan: starter
+    region: singapore
+    buildCommand: npm ci --omit=dev
+    startCommand: node server/index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+    disk:
+      name: yunlu-data
+      mountPath: /var/data
+      sizeGB: 5

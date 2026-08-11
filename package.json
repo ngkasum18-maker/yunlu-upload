@@ -1,12 +1,13 @@
 {
   "name": "yunlu-upload",
   "version": "1.0.0",
-  "description": "雲路相片上載",
+  "description": "雲路相片同 Word 上載（可安裝 PWA App）",
   "private": true,
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "node --watch server/index.js"
+    "dev": "node --watch server/index.js",
+    "health": "node -e \"fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health').then(r=>r.json()).then(console.log)\""
   },
   "engines": {
     "node": ">=18"
