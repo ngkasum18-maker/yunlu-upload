@@ -197,7 +197,19 @@ function deleteById(id) {
 }
 
 app.use(express.json());
-app.use(express.static(path.join(ROOT, "public")));
+app.use(
+  express.static(path.join(ROOT, "public"), {
+    setHeaders(res, filePath) {
+      if (filePath.endsWith("manifest.webmanifest")) {
+        res.setHeader("Content-Type", "application/manifest+json; charset=utf-8");
+      }
+      if (filePath.endsWith("sw.js")) {
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Service-Worker-Allowed", "/");
+      }
+    },
+  })
+);
 app.use("/uploads", express.static(UPLOAD_DIR));
 
 app.get("/api/files/:id/download", (req, res) => {

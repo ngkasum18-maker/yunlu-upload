@@ -80,6 +80,29 @@ body {
   text-transform: uppercase;
 }
 
+.install-btn {
+  appearance: none;
+  border: 1px solid color-mix(in srgb, var(--mist) 40%, transparent);
+  border-radius: 999px;
+  padding: 0.5rem 0.95rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--fog);
+  background: rgba(15, 24, 18, 0.45);
+  cursor: pointer;
+  transition:
+    background 0.25s var(--ease),
+    border-color 0.25s var(--ease),
+    transform 0.25s var(--ease);
+}
+
+.install-btn:hover {
+  border-color: var(--jade-bright);
+  background: rgba(47, 143, 106, 0.22);
+  transform: translateY(-1px);
+}
+
 main {
   width: min(1100px, 100%);
   margin: 0 auto;

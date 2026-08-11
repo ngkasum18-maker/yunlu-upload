@@ -451,3 +451,66 @@ loadFiles().catch(() => {
   setStatus("暫時讀唔到檔案庫", "is-error");
   empty.hidden = false;
 });
+
+/* ---------- Progressive Web App (installable) ---------- */
+const installBtn = document.getElementById("install-btn");
+let deferredInstallPrompt = null;
+
+function isStandaloneApp() {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+}
+
+function showInstallHelp() {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (isIOS) {
+    setStatus("iPhone／iPad：用 Safari 開，撳分享掣 →「加到主畫面」", "is-ok");
+    return;
+  }
+  setStatus("請用瀏覽器選單入面嘅「安裝應用程式」或「加到主畫面」", "is-ok");
+}
+
+if (installBtn) {
+  if (isStandaloneApp()) {
+    installBtn.hidden = true;
+  } else {
+    installBtn.hidden = false;
+    installBtn.addEventListener("click", async () => {
+      if (!deferredInstallPrompt) {
+        showInstallHelp();
+        return;
+      }
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      installBtn.hidden = true;
+      if (choice.outcome === "accepted") {
+        setStatus("已開始安裝雲路 App", "is-ok");
+      }
+    });
+  }
+}
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  if (installBtn && !isStandaloneApp()) {
+    installBtn.hidden = false;
+  }
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  if (installBtn) installBtn.hidden = true;
+  setStatus("雲路 App 已安裝到裝置", "is-ok");
+});
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      // Ignore SW registration failures in unsupported environments.
+    });
+  });
+}
