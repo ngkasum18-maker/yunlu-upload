@@ -287,10 +287,16 @@ function uploadFiles(files) {
   });
 
   xhr.addEventListener("error", () => {
-    setStatus("網絡錯誤，上載失敗", "is-error");
+    setStatus("網絡錯誤，上載失敗。請刷新頁面或用最新公開連結再試。", "is-error");
     progress.hidden = true;
   });
 
+  xhr.addEventListener("timeout", () => {
+    setStatus("上載逾時，請檢查網絡後再試。", "is-error");
+    progress.hidden = true;
+  });
+
+  xhr.timeout = 120000;
   xhr.send(formData);
 }
 
