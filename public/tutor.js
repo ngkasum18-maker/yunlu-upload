@@ -129,7 +129,10 @@ function renderTeachers() {
   grid.innerHTML = "";
 
   if (!teachers.length) {
-    grid.innerHTML = '<p class="empty-state">暫時未有導師資料。<a href="/tutor-register.html">導師登記</a></p>';
+    grid.innerHTML = `
+      <p class="empty-state">暫時未有導師資料。</p>
+      <a href="/tutor-register.html" class="teacher-input-btn teacher-input-btn-inline">輸入專業師資</a>
+    `;
     return;
   }
 
@@ -144,6 +147,7 @@ function renderTeachers() {
       <h4 class="teacher-name">${esc(t.name)}</h4>
       ${t.subject ? `<p class="teacher-subject">${esc(t.subject)}</p>` : ""}
       ${t.qualification ? `<p class="teacher-meta">${esc(t.qualification)}</p>` : ""}
+      ${t.school ? `<p class="teacher-meta">🏫 ${esc(t.school)}</p>` : ""}
       ${t.experience ? `<p class="teacher-meta">${esc(t.experience)} 教學經驗</p>` : ""}
       ${t.bio ? `<p class="teacher-bio">${esc(t.bio)}</p>` : ""}
     `;
@@ -335,7 +339,9 @@ function teacherFormData() {
     name: document.getElementById("teacher-name")?.value || "",
     subject: document.getElementById("teacher-subject")?.value || "",
     qualification: document.getElementById("teacher-qualification")?.value || "",
+    school: document.getElementById("teacher-school")?.value || "",
     experience: document.getElementById("teacher-experience")?.value || "",
+    phone: document.getElementById("teacher-phone")?.value || "",
     bio: document.getElementById("teacher-bio")?.value || "",
     photoUrl: document.getElementById("teacher-photo")?.value || "",
   };
@@ -392,7 +398,9 @@ function editTeacher(t) {
   document.getElementById("teacher-name").value = t.name || "";
   document.getElementById("teacher-subject").value = t.subject || "";
   document.getElementById("teacher-qualification").value = t.qualification || "";
+  document.getElementById("teacher-school") && (document.getElementById("teacher-school").value = t.school || "");
   document.getElementById("teacher-experience").value = t.experience || "";
+  document.getElementById("teacher-phone") && (document.getElementById("teacher-phone").value = t.phone || "");
   document.getElementById("teacher-bio").value = t.bio || "";
   document.getElementById("teacher-photo").value = t.photoUrl || "";
   document.getElementById("teacher-name")?.focus();

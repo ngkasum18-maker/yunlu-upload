@@ -52,13 +52,13 @@
       <section class="section" id="about">
         <h2 class="section-title">關於我哋</h2>
         <div class="about-teachers-block">
-          <h3 class="about-block-title">🎓 專業師資</h3>
+          <div class="about-block-head">
+            <h3 class="about-block-title">🎓 專業師資</h3>
+            <a href="/tutor-register.html" class="teacher-input-btn">輸入專業師資</a>
+          </div>
           <div class="teachers-grid" id="teachers-grid">
             <p class="loading">載入導師資料…</p>
           </div>
-          <p class="about-register-link">
-            <a href="/tutor-register.html">導師登記 →</a>
-          </p>
         </div>
         <div class="about-grid" id="about-content"></div>
       </section>
@@ -121,7 +121,9 @@
             <label>姓名 <input type="text" id="teacher-name" required /></label>
             <label>任教科目 <input type="text" id="teacher-subject" /></label>
             <label>學歷 / 資格 <input type="text" id="teacher-qualification" /></label>
+            <label>畢業院校 <input type="text" id="teacher-school" /></label>
             <label>教學年資 <input type="text" id="teacher-experience" /></label>
+            <label>聯絡電話 <input type="tel" id="teacher-phone" /></label>
             <label>簡介 <textarea id="teacher-bio" rows="3"></textarea></label>
             <label>相片網址（選填） <input type="url" id="teacher-photo" /></label>
             <div class="admin-form-actions">
