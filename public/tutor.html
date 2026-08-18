@@ -57,7 +57,7 @@
       <!-- Courses -->
       <section class="section" id="courses">
         <h2 class="section-title">課程一覽</h2>
-        <p class="section-sub">以下係我哋提供嘅課程，詳情請聯絡查詢。</p>
+        <p class="section-sub">以下係我哋提供嘅課程（學費以年費顯示），詳情請聯絡查詢。</p>
         <div class="courses-grid" id="courses-grid">
           <p class="loading">載入課程資料…</p>
         </div>
@@ -138,7 +138,16 @@
             <label>課程名稱 <input type="text" name="name" id="course-name" required /></label>
             <label>對象 <input type="text" name="target" id="course-target" placeholder="例：中一至中三" /></label>
             <label>時間 <input type="text" name="schedule" id="course-schedule" placeholder="例：逢星期六 10:00-12:00" /></label>
-            <label>學費 <input type="text" name="fee" id="course-fee" placeholder="例：$800/月" /></label>
+            <label class="fee-field">
+              學費
+              <span class="fee-inputs">
+                <input type="text" name="fee" id="course-fee" placeholder="例：$8000" />
+                <select name="feePeriod" id="course-fee-period" aria-label="學費週期">
+                  <option value="year" selected>年費</option>
+                  <option value="month">月費</option>
+                </select>
+              </span>
+            </label>
             <label>簡介 <textarea name="description" id="course-desc" rows="3"></textarea></label>
             <div class="admin-form-actions">
               <button type="submit" class="cta">儲存課程</button>
