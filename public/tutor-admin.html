@@ -37,24 +37,38 @@
         </div>
 
         <div class="admin-content" id="about-admin">
-          <h3>關於我哋 — 四項內容</h3>
-          <p class="admin-lead">每行一個重點，前台會以項目符號（•）顯示。</p>
+          <h3>🎓 專業師資 — 導師登記</h3>
+          <p class="admin-lead">每位導師填寫資料後儲存到雲端資料庫，會顯示喺「關於我哋 → 專業師資」。</p>
+          <form id="teacher-form" class="admin-form">
+            <input type="hidden" id="teacher-id" />
+            <label>姓名 <input type="text" id="teacher-name" required placeholder="例：陳老師" /></label>
+            <label>任教科目 <input type="text" id="teacher-subject" placeholder="例：數學、英文" /></label>
+            <label>學歷 / 資格 <input type="text" id="teacher-qualification" placeholder="例：香港大學數學系" /></label>
+            <label>教學年資 <input type="text" id="teacher-experience" placeholder="例：10 年" /></label>
+            <label>簡介 <textarea id="teacher-bio" rows="3" placeholder="專長、教學特色…"></textarea></label>
+            <label>相片網址（選填） <input type="url" id="teacher-photo" placeholder="https://..." /></label>
+            <div class="admin-form-actions">
+              <button type="submit" class="cta">儲存導師</button>
+              <button type="button" class="cta cta-secondary" id="teacher-reset">清除</button>
+            </div>
+            <p class="admin-status" id="teacher-status" role="status" aria-live="polite"></p>
+          </form>
+          <div id="teachers-admin-list"></div>
+
+          <hr class="admin-divider" />
+          <h3>其他關於我哋內容</h3>
           <form id="about-form" class="admin-form admin-about-form">
             <label>
-              <span class="about-label">🎓 專業師資</span>
-              <textarea name="aboutTeachers" id="about-teachers" rows="4" placeholder="例：&#10;擁有多年教學經驗&#10;熟悉 DSE 考試重點"></textarea>
-            </label>
-            <label>
               <span class="about-label">📚 小班教學</span>
-              <textarea name="aboutSmallClass" id="about-small-class" rows="4" placeholder="例：&#10;每班最多 8 人&#10;個別指導"></textarea>
+              <textarea id="about-small-class" rows="3" placeholder="每行一個重點"></textarea>
             </label>
             <label>
               <span class="about-label">📈 成績保證</span>
-              <textarea name="aboutResults" id="about-results" rows="4" placeholder="例：&#10;成績進步率超過 90%"></textarea>
+              <textarea id="about-results" rows="3" placeholder="每行一個重點"></textarea>
             </label>
             <label>
               <span class="about-label">☁️ 雲端教材</span>
-              <textarea name="aboutCloud" id="about-cloud" rows="4" placeholder="例：&#10;筆記上載雲端&#10;錄影重溫溫習"></textarea>
+              <textarea id="about-cloud" rows="3" placeholder="每行一個重點"></textarea>
             </label>
             <div class="admin-form-actions">
               <button type="submit" class="cta">儲存並上載</button>

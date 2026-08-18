@@ -51,6 +51,15 @@
       <!-- About -->
       <section class="section" id="about">
         <h2 class="section-title">關於我哋</h2>
+        <div class="about-teachers-block">
+          <h3 class="about-block-title">🎓 專業師資</h3>
+          <div class="teachers-grid" id="teachers-grid">
+            <p class="loading">載入導師資料…</p>
+          </div>
+          <p class="about-register-link">
+            <a href="/tutor-register.html">導師登記 →</a>
+          </p>
+        </div>
         <div class="about-grid" id="about-content"></div>
       </section>
 
@@ -105,25 +114,29 @@
         </div>
 
         <div class="admin-content" id="about-admin">
-          <h3>關於我哋 — 填寫上載資料</h3>
-          <p class="admin-lead">以下四項會顯示喺「關於我哋」版面。每行一個重點，前台會以項目符號顯示。</p>
+          <h3>🎓 專業師資 — 導師登記</h3>
+          <p class="admin-lead">每位導師填寫資料後儲存到雲端資料庫。</p>
+          <form id="teacher-form" class="admin-form">
+            <input type="hidden" id="teacher-id" />
+            <label>姓名 <input type="text" id="teacher-name" required /></label>
+            <label>任教科目 <input type="text" id="teacher-subject" /></label>
+            <label>學歷 / 資格 <input type="text" id="teacher-qualification" /></label>
+            <label>教學年資 <input type="text" id="teacher-experience" /></label>
+            <label>簡介 <textarea id="teacher-bio" rows="3"></textarea></label>
+            <label>相片網址（選填） <input type="url" id="teacher-photo" /></label>
+            <div class="admin-form-actions">
+              <button type="submit" class="cta">儲存導師</button>
+              <button type="button" class="cta cta-secondary" id="teacher-reset">清除</button>
+            </div>
+            <p class="admin-status" id="teacher-status" role="status" aria-live="polite"></p>
+          </form>
+          <div id="teachers-admin-list"></div>
+          <hr class="admin-divider" />
+          <h3>其他關於我哋內容</h3>
           <form id="about-form" class="admin-form admin-about-form">
-            <label>
-              <span class="about-label">🎓 專業師資</span>
-              <textarea name="aboutTeachers" id="about-teachers" rows="4" placeholder="例：&#10;擁有多年教學經驗&#10;熟悉 DSE 考試重點&#10;針對弱項加強訓練"></textarea>
-            </label>
-            <label>
-              <span class="about-label">📚 小班教學</span>
-              <textarea name="aboutSmallClass" id="about-small-class" rows="4" placeholder="例：&#10;每班最多 8 人&#10;確保充分關注&#10;個別指導"></textarea>
-            </label>
-            <label>
-              <span class="about-label">📈 成績保證</span>
-              <textarea name="aboutResults" id="about-results" rows="4" placeholder="例：&#10;成績進步率超過 90%&#10;有口碑、有實績"></textarea>
-            </label>
-            <label>
-              <span class="about-label">☁️ 雲端教材</span>
-              <textarea name="aboutCloud" id="about-cloud" rows="4" placeholder="例：&#10;筆記上載雲端&#10;練習隨時下載&#10;錄影重溫溫習"></textarea>
-            </label>
+            <label><span class="about-label">📚 小班教學</span><textarea id="about-small-class" rows="3"></textarea></label>
+            <label><span class="about-label">📈 成績保證</span><textarea id="about-results" rows="3"></textarea></label>
+            <label><span class="about-label">☁️ 雲端教材</span><textarea id="about-cloud" rows="3"></textarea></label>
             <div class="admin-form-actions">
               <button type="submit" class="cta">儲存並上載</button>
             </div>

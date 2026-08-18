@@ -378,6 +378,51 @@ app.post("/api/tutor/info", (req, res) => {
   res.json({ ok: true, info });
 });
 
+app.get("/api/tutor/teachers", (_req, res) => {
+  const teachers = readTutorJSON("teachers.json");
+  teachers.sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-Hant"));
+  res.json({ teachers });
+});
+
+app.post("/api/tutor/teachers", (req, res) => {
+  const teachers = readTutorJSON("teachers.json");
+  const body = req.body || {};
+  if (!body.name || !String(body.name).trim()) {
+    return res.status(400).json({ error: "請填寫導師姓名" });
+  }
+
+  if (body.id) {
+    const idx = teachers.findIndex((t) => t.id === body.id);
+    if (idx >= 0) {
+      teachers[idx] = { ...teachers[idx], ...body, updatedAt: Date.now() };
+    } else {
+      return res.status(404).json({ error: "搵唔到導師" });
+    }
+  } else {
+    teachers.push({
+      id: `tch-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
+      name: String(body.name).trim(),
+      subject: body.subject || "",
+      qualification: body.qualification || "",
+      experience: body.experience || "",
+      bio: body.bio || "",
+      photoUrl: body.photoUrl || "",
+      createdAt: Date.now(),
+    });
+  }
+  writeTutorJSON("teachers.json", teachers);
+  res.json({ ok: true, teachers });
+});
+
+app.delete("/api/tutor/teachers/:id", (req, res) => {
+  let teachers = readTutorJSON("teachers.json");
+  const before = teachers.length;
+  teachers = teachers.filter((t) => t.id !== req.params.id);
+  if (teachers.length === before) return res.status(404).json({ error: "搵唔到導師" });
+  writeTutorJSON("teachers.json", teachers);
+  res.json({ ok: true });
+});
+
 app.get("/api/health", (_req, res) => {
   res.json({
     ok: true,

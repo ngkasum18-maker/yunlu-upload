@@ -233,6 +233,87 @@ main {
 }
 .about-bullets li { margin: 0.35rem 0; }
 
+.about-teachers-block {
+  margin-bottom: 2rem;
+}
+.about-block-title {
+  margin: 0 0 1rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  color: var(--fog);
+}
+.about-register-link {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+}
+.about-register-link a {
+  color: var(--jade-bright);
+  text-decoration: none;
+  font-weight: 600;
+}
+.teachers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+.teacher-card {
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, rgba(47,143,106,0.14), rgba(21,32,24,0.55)), rgba(18,28,22,0.75);
+  border: 1px solid rgba(197,214,200,0.12);
+  text-align: center;
+}
+.teacher-photo {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 0.75rem;
+  display: block;
+}
+.teacher-avatar {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 0.75rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: linear-gradient(135deg, #e8d7a8, #c4a86e);
+}
+.teacher-name {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--fog);
+}
+.teacher-subject {
+  margin: 0 0 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--jade-bright);
+}
+.teacher-meta {
+  margin: 0 0 0.25rem;
+  font-size: 0.82rem;
+  color: var(--mist);
+}
+.teacher-bio {
+  margin: 0.65rem 0 0;
+  font-size: 0.88rem;
+  color: var(--mist);
+  line-height: 1.55;
+  text-align: left;
+}
+.admin-divider {
+  border: 0;
+  border-top: 1px solid rgba(197,214,200,0.15);
+  margin: 2rem 0 1.5rem;
+}
+
 /* Courses Grid */
 .courses-grid {
   display: grid;

@@ -27,14 +27,9 @@ if (menuToggle && nav) {
 /* State */
 let courses = [];
 let announcements = [];
+let teachers = [];
 let siteInfo = {};
 const defaultAboutItems = [
-  {
-    key: "aboutTeachers",
-    icon: "🎓",
-    title: "專業師資",
-    description: "擁有多年教學經驗，熟悉考試重點，針對學生弱項加強訓練。",
-  },
   {
     key: "aboutSmallClass",
     icon: "📚",
@@ -90,17 +85,20 @@ async function deleteJSON(url) {
 /* ---- Load Data ---- */
 async function loadAll() {
   try {
-    const [c, a, i] = await Promise.all([
+    const [c, a, t, i] = await Promise.all([
       fetchJSON("/api/tutor/courses"),
       fetchJSON("/api/tutor/announcements"),
+      fetchJSON("/api/tutor/teachers"),
       fetchJSON("/api/tutor/info"),
     ]);
     courses = c.courses || [];
     announcements = a.announcements || [];
+    teachers = t.teachers || [];
     siteInfo = i.info || {};
   } catch {
     courses = [];
     announcements = [];
+    teachers = [];
     siteInfo = {};
   }
   renderAll();
@@ -110,16 +108,46 @@ async function loadAll() {
 function renderAll() {
   if (!isAdminPage) {
     renderHeroStats();
+    renderTeachers();
     renderAbout();
     renderCourses();
     renderAnnouncements();
     renderContact();
   }
   if (isAdmin) {
+    renderAdminTeachers();
     renderAdminAbout();
     renderAdminCourses();
     renderAdminAnnouncements();
     renderAdminInfo();
+  }
+}
+
+function renderTeachers() {
+  const grid = document.getElementById("teachers-grid");
+  if (!grid) return;
+  grid.innerHTML = "";
+
+  if (!teachers.length) {
+    grid.innerHTML = '<p class="empty-state">暫時未有導師資料。<a href="/tutor-register.html">導師登記</a></p>';
+    return;
+  }
+
+  for (const t of teachers) {
+    const card = document.createElement("article");
+    card.className = "teacher-card";
+    const avatar = t.photoUrl
+      ? `<img class="teacher-photo" src="${esc(t.photoUrl)}" alt="${esc(t.name)}" loading="lazy" />`
+      : `<div class="teacher-avatar">${esc((t.name || "?").charAt(0))}</div>`;
+    card.innerHTML = `
+      ${avatar}
+      <h4 class="teacher-name">${esc(t.name)}</h4>
+      ${t.subject ? `<p class="teacher-subject">${esc(t.subject)}</p>` : ""}
+      ${t.qualification ? `<p class="teacher-meta">${esc(t.qualification)}</p>` : ""}
+      ${t.experience ? `<p class="teacher-meta">${esc(t.experience)} 教學經驗</p>` : ""}
+      ${t.bio ? `<p class="teacher-bio">${esc(t.bio)}</p>` : ""}
+    `;
+    grid.appendChild(card);
   }
 }
 
@@ -265,7 +293,6 @@ if (aboutForm) {
     setAboutStatus("上載緊…");
     try {
       const data = {
-        aboutTeachers: document.getElementById("about-teachers").value,
         aboutSmallClass: document.getElementById("about-small-class").value,
         aboutResults: document.getElementById("about-results").value,
         aboutCloud: document.getElementById("about-cloud").value,
@@ -281,7 +308,6 @@ if (aboutForm) {
 
 function renderAdminAbout() {
   const fields = [
-    ["about-teachers", "aboutTeachers"],
     ["about-small-class", "aboutSmallClass"],
     ["about-results", "aboutResults"],
     ["about-cloud", "aboutCloud"],
@@ -290,6 +316,92 @@ function renderAdminAbout() {
     const el = document.getElementById(id);
     if (el) el.value = siteInfo[key] || "";
   }
+}
+
+/* ---- Admin: Teachers ---- */
+const teacherForm = document.getElementById("teacher-form");
+const teacherStatus = document.getElementById("teacher-status");
+
+function setTeacherStatus(message, kind = "") {
+  if (!teacherStatus) return;
+  teacherStatus.textContent = message;
+  teacherStatus.classList.remove("is-error", "is-ok");
+  if (kind) teacherStatus.classList.add(kind);
+}
+
+function teacherFormData() {
+  return {
+    id: document.getElementById("teacher-id")?.value || undefined,
+    name: document.getElementById("teacher-name")?.value || "",
+    subject: document.getElementById("teacher-subject")?.value || "",
+    qualification: document.getElementById("teacher-qualification")?.value || "",
+    experience: document.getElementById("teacher-experience")?.value || "",
+    bio: document.getElementById("teacher-bio")?.value || "",
+    photoUrl: document.getElementById("teacher-photo")?.value || "",
+  };
+}
+
+if (teacherForm && !/tutor-register\.html$/.test(location.pathname)) {
+  teacherForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    setTeacherStatus("儲存緊…");
+    try {
+      await postJSON("/api/tutor/teachers", teacherFormData());
+      teacherForm.reset();
+      document.getElementById("teacher-id").value = "";
+      await loadAll();
+      setTeacherStatus("已儲存到雲端資料庫", "is-ok");
+    } catch {
+      setTeacherStatus("儲存失敗，請再試", "is-error");
+    }
+  });
+}
+
+document.getElementById("teacher-reset")?.addEventListener("click", () => {
+  teacherForm?.reset();
+  const idEl = document.getElementById("teacher-id");
+  if (idEl) idEl.value = "";
+});
+
+function renderAdminTeachers() {
+  const list = document.getElementById("teachers-admin-list");
+  if (!list) return;
+  list.innerHTML = "";
+  if (!teachers.length) {
+    list.innerHTML = '<p class="admin-lead">暫時未有導師。請上面填寫登記。</p>';
+    return;
+  }
+  for (const t of teachers) {
+    const item = document.createElement("div");
+    item.className = "admin-item";
+    item.innerHTML = `
+      <span class="admin-item-name">${esc(t.name)} ${t.subject ? `· ${esc(t.subject)}` : ""}</span>
+      <div class="admin-item-actions">
+        <button class="btn-edit" type="button">編輯</button>
+        <button class="btn-del" type="button">刪除</button>
+      </div>
+    `;
+    item.querySelector(".btn-edit").addEventListener("click", () => editTeacher(t));
+    item.querySelector(".btn-del").addEventListener("click", () => deleteTeacher(t.id));
+    list.appendChild(item);
+  }
+}
+
+function editTeacher(t) {
+  document.getElementById("teacher-id").value = t.id;
+  document.getElementById("teacher-name").value = t.name || "";
+  document.getElementById("teacher-subject").value = t.subject || "";
+  document.getElementById("teacher-qualification").value = t.qualification || "";
+  document.getElementById("teacher-experience").value = t.experience || "";
+  document.getElementById("teacher-bio").value = t.bio || "";
+  document.getElementById("teacher-photo").value = t.photoUrl || "";
+  document.getElementById("teacher-name")?.focus();
+}
+
+async function deleteTeacher(id) {
+  if (!confirm("確定刪除呢位導師？")) return;
+  await deleteJSON(`/api/tutor/teachers/${id}`);
+  await loadAll();
 }
 
 /* ---- Admin: Courses ---- */

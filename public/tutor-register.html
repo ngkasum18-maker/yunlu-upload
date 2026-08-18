@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>導師登記 — 雲路補習社</title>
+    <meta name="theme-color" content="#1f6b4f" />
+    <link rel="icon" href="/icons/icon-192.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/tutor.css" />
+  </head>
+  <body class="admin-page">
+    <div class="atmosphere" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="logo" href="/tutor.html">雲路補習社 <span>Tutorial Centre</span></a>
+      <nav class="nav">
+        <a href="/tutor.html#about">返回網站</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="section admin-panel admin-panel-top">
+        <h2 class="section-title">🎓 導師登記</h2>
+        <p class="admin-lead">填寫你嘅資料，儲存後會顯示喺「關於我哋 → 專業師資」。</p>
+
+        <form id="teacher-form" class="admin-form">
+          <label>姓名 <input type="text" id="teacher-name" required placeholder="例：陳老師" /></label>
+          <label>任教科目 <input type="text" id="teacher-subject" placeholder="例：數學、英文" /></label>
+          <label>學歷 / 資格 <input type="text" id="teacher-qualification" placeholder="例：香港大學數學系" /></label>
+          <label>教學年資 <input type="text" id="teacher-experience" placeholder="例：10 年" /></label>
+          <label>簡介 <textarea id="teacher-bio" rows="4" placeholder="專長、教學特色、曾教學校…"></textarea></label>
+          <label>相片網址（選填） <input type="url" id="teacher-photo" placeholder="https://..." /></label>
+          <div class="admin-form-actions">
+            <button type="submit" class="cta">提交登記</button>
+            <a href="/tutor.html#about" class="cta cta-secondary">返回網站</a>
+          </div>
+          <p class="admin-status" id="teacher-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <script src="/tutor.js"></script>
+    <script>
+      document.getElementById("teacher-form")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const status = document.getElementById("teacher-status");
+        status.textContent = "提交緊…";
+        status.className = "admin-status";
+        try {
+          await postJSON("/api/tutor/teachers", {
+            name: document.getElementById("teacher-name").value,
+            subject: document.getElementById("teacher-subject").value,
+            qualification: document.getElementById("teacher-qualification").value,
+            experience: document.getElementById("teacher-experience").value,
+            bio: document.getElementById("teacher-bio").value,
+            photoUrl: document.getElementById("teacher-photo").value,
+          });
+          e.target.reset();
+          status.textContent = "登記成功！資料已儲存到雲端，會顯示喺專業師資版面。";
+          status.className = "admin-status is-ok";
+        } catch {
+          status.textContent = "提交失敗，請再試。";
+          status.className = "admin-status is-error";
+        }
+      });
+    </script>
+  </body>
+</html>
