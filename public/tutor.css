@@ -81,6 +81,10 @@ body {
   color: var(--jade-bright) !important;
   border: 1px solid rgba(47,143,106,0.4);
 }
+.nav-admin {
+  color: #e8d7a8 !important;
+  border: 1px solid rgba(232, 215, 168, 0.4);
+}
 
 .menu-toggle {
   display: none; appearance: none; border: 0; background: none;
@@ -314,6 +318,25 @@ main {
 }
 .site-footer p { margin: 0.25rem 0; }
 .footer-sub { font-size: 0.78rem; }
+
+.admin-fab {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 110;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: linear-gradient(135deg, #e8d7a8, #c4a86e);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.admin-fab:hover {
+  transform: translateY(-1px);
+}
 
 /* Loading */
 .loading { color: var(--mist); font-size: 0.9rem; }

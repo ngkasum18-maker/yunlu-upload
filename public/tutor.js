@@ -2,6 +2,10 @@
 const isAdmin = new URLSearchParams(location.search).has("admin");
 const adminPanel = document.getElementById("admin");
 if (isAdmin && adminPanel) adminPanel.hidden = false;
+if (isAdmin) {
+  const adminFab = document.getElementById("admin-fab");
+  if (adminFab) adminFab.hidden = true;
+}
 
 /* Mobile nav toggle */
 const menuToggle = document.getElementById("menu-toggle");
