@@ -1,8 +1,15 @@
 /* Tutoring Centre frontend */
-const isAdmin = new URLSearchParams(location.search).has("admin");
+if (new URLSearchParams(location.search).has("admin") && !location.pathname.includes("tutor-admin")) {
+  location.replace("/tutor-admin.html");
+}
+
+const isAdmin =
+  new URLSearchParams(location.search).has("admin") ||
+  /tutor-admin\.html$/.test(location.pathname);
+const isAdminPage = /tutor-admin\.html$/.test(location.pathname);
 const adminPanel = document.getElementById("admin");
 if (isAdmin && adminPanel) adminPanel.hidden = false;
-if (isAdmin) {
+if (isAdmin && !isAdminPage) {
   const adminFab = document.getElementById("admin-fab");
   if (adminFab) adminFab.hidden = true;
 }
@@ -101,11 +108,13 @@ async function loadAll() {
 
 /* ---- Render ---- */
 function renderAll() {
-  renderHeroStats();
-  renderAbout();
-  renderCourses();
-  renderAnnouncements();
-  renderContact();
+  if (!isAdminPage) {
+    renderHeroStats();
+    renderAbout();
+    renderCourses();
+    renderAnnouncements();
+    renderContact();
+  }
   if (isAdmin) {
     renderAdminAbout();
     renderAdminCourses();
@@ -426,7 +435,7 @@ function renderAdminInfo() {
   document.getElementById("info-whatsapp") && (document.getElementById("info-whatsapp").value = siteInfo.whatsapp || "");
 }
 
-if (isAdmin && adminPanel) {
+if (isAdmin && adminPanel && !isAdminPage) {
   requestAnimationFrame(() => {
     adminPanel.scrollIntoView({ behavior: "smooth", block: "start" });
   });
