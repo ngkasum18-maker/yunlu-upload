@@ -98,12 +98,40 @@
       <section class="section admin-panel" id="admin" hidden>
         <h2 class="section-title">管理面板</h2>
         <div class="admin-tabs">
-          <button class="admin-tab is-active" data-tab="courses-admin">課程管理</button>
+          <button class="admin-tab is-active" data-tab="about-admin">填寫上載資料</button>
+          <button class="admin-tab" data-tab="courses-admin">課程管理</button>
           <button class="admin-tab" data-tab="announce-admin">公告管理</button>
           <button class="admin-tab" data-tab="info-admin">基本資料</button>
         </div>
 
-        <div class="admin-content" id="courses-admin">
+        <div class="admin-content" id="about-admin">
+          <h3>關於我哋 — 填寫上載資料</h3>
+          <p class="admin-lead">以下四項會顯示喺「關於我哋」版面。每行一個重點，前台會以項目符號顯示。</p>
+          <form id="about-form" class="admin-form admin-about-form">
+            <label>
+              <span class="about-label">🎓 專業師資</span>
+              <textarea name="aboutTeachers" id="about-teachers" rows="4" placeholder="例：&#10;擁有多年教學經驗&#10;熟悉 DSE 考試重點&#10;針對弱項加強訓練"></textarea>
+            </label>
+            <label>
+              <span class="about-label">📚 小班教學</span>
+              <textarea name="aboutSmallClass" id="about-small-class" rows="4" placeholder="例：&#10;每班最多 8 人&#10;確保充分關注&#10;個別指導"></textarea>
+            </label>
+            <label>
+              <span class="about-label">📈 成績保證</span>
+              <textarea name="aboutResults" id="about-results" rows="4" placeholder="例：&#10;成績進步率超過 90%&#10;有口碑、有實績"></textarea>
+            </label>
+            <label>
+              <span class="about-label">☁️ 雲端教材</span>
+              <textarea name="aboutCloud" id="about-cloud" rows="4" placeholder="例：&#10;筆記上載雲端&#10;練習隨時下載&#10;錄影重溫溫習"></textarea>
+            </label>
+            <div class="admin-form-actions">
+              <button type="submit" class="cta">儲存並上載</button>
+            </div>
+            <p class="admin-status" id="about-status" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div class="admin-content" id="courses-admin" hidden>
           <h3>新增 / 編輯課程</h3>
           <form id="course-form" class="admin-form">
             <input type="hidden" name="id" id="course-id" />
@@ -143,10 +171,6 @@
             <label>電郵 <input type="email" name="email" id="info-email" /></label>
             <label>辦公時間 <input type="text" name="hours" id="info-hours" placeholder="例：星期一至六 14:00-21:00" /></label>
             <label>WhatsApp 連結 <input type="url" name="whatsapp" id="info-whatsapp" placeholder="https://wa.me/852..." /></label>
-            <label>專業師資內容 <textarea name="aboutTeachers" id="info-about-teachers" rows="3"></textarea></label>
-            <label>小班教學內容 <textarea name="aboutSmallClass" id="info-about-small-class" rows="3"></textarea></label>
-            <label>成績保證內容 <textarea name="aboutResults" id="info-about-results" rows="3"></textarea></label>
-            <label>雲端教材內容 <textarea name="aboutCloud" id="info-about-cloud" rows="3"></textarea></label>
             <div class="admin-form-actions">
               <button type="submit" class="cta">儲存資料</button>
             </div>

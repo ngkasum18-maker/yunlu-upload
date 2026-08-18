@@ -225,6 +225,13 @@ main {
   font-size: 1.15rem; color: var(--fog);
 }
 .about-card p { margin: 0; color: var(--mist); font-size: 0.92rem; }
+.about-bullets {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--mist);
+  font-size: 0.92rem;
+}
+.about-bullets li { margin: 0.35rem 0; }
 
 /* Courses Grid */
 .courses-grid {
@@ -349,6 +356,30 @@ main {
 
 /* Admin Panel */
 .admin-panel { border-top: 2px solid var(--jade); padding-top: 3rem; }
+.admin-lead {
+  margin: 0 0 1.25rem;
+  color: var(--mist);
+  font-size: 0.92rem;
+}
+.about-label {
+  font-weight: 600;
+  color: var(--fog);
+  font-size: 0.95rem;
+}
+.admin-about-form label {
+  padding: 0.85rem;
+  border-radius: 12px;
+  background: rgba(18, 28, 22, 0.45);
+  border: 1px solid rgba(197, 214, 200, 0.1);
+}
+.admin-status {
+  min-height: 1.2rem;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--mist);
+}
+.admin-status.is-ok { color: #b7e4cb; }
+.admin-status.is-error { color: #f0b4ab; }
 .admin-tabs {
   display: flex; flex-wrap: wrap; gap: 0.5rem;
   margin-bottom: 1.5rem;

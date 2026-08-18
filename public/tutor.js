@@ -107,6 +107,7 @@ function renderAll() {
   renderAnnouncements();
   renderContact();
   if (isAdmin) {
+    renderAdminAbout();
     renderAdminCourses();
     renderAdminAnnouncements();
     renderAdminInfo();
@@ -119,16 +120,30 @@ function renderAbout() {
   container.innerHTML = "";
 
   for (const item of defaultAboutItems) {
-    const desc = siteInfo[item.key] || item.description;
+    const raw = siteInfo[item.key] || item.description;
     const card = document.createElement("div");
     card.className = "about-card";
     card.innerHTML = `
       <div class="about-icon">${item.icon}</div>
       <h3>${item.title}</h3>
-      <p>${esc(desc)}</p>
+      ${formatAboutBody(raw)}
     `;
     container.appendChild(card);
   }
+}
+
+function formatAboutBody(text) {
+  const lines = String(text || "")
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^[•·\-]\s*/, "").trim())
+    .filter(Boolean);
+
+  if (lines.length <= 1) {
+    return `<p>${esc(lines[0] || text || "")}</p>`;
+  }
+
+  const items = lines.map((line) => `<li>${esc(line)}</li>`).join("");
+  return `<ul class="about-bullets">${items}</ul>`;
 }
 
 function renderHeroStats() {
@@ -223,6 +238,50 @@ document.querySelectorAll(".admin-tab").forEach((tab) => {
     if (target) target.hidden = false;
   });
 });
+
+/* ---- Admin: About (填寫上載資料) ---- */
+const aboutForm = document.getElementById("about-form");
+const aboutStatus = document.getElementById("about-status");
+
+function setAboutStatus(message, kind = "") {
+  if (!aboutStatus) return;
+  aboutStatus.textContent = message;
+  aboutStatus.classList.remove("is-error", "is-ok");
+  if (kind) aboutStatus.classList.add(kind);
+}
+
+if (aboutForm) {
+  aboutForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    setAboutStatus("上載緊…");
+    try {
+      const data = {
+        aboutTeachers: document.getElementById("about-teachers").value,
+        aboutSmallClass: document.getElementById("about-small-class").value,
+        aboutResults: document.getElementById("about-results").value,
+        aboutCloud: document.getElementById("about-cloud").value,
+      };
+      await postJSON("/api/tutor/info", data);
+      await loadAll();
+      setAboutStatus("已儲存並上載，前台已更新", "is-ok");
+    } catch {
+      setAboutStatus("上載失敗，請再試", "is-error");
+    }
+  });
+}
+
+function renderAdminAbout() {
+  const fields = [
+    ["about-teachers", "aboutTeachers"],
+    ["about-small-class", "aboutSmallClass"],
+    ["about-results", "aboutResults"],
+    ["about-cloud", "aboutCloud"],
+  ];
+  for (const [id, key] of fields) {
+    const el = document.getElementById(id);
+    if (el) el.value = siteInfo[key] || "";
+  }
+}
 
 /* ---- Admin: Courses ---- */
 const courseForm = document.getElementById("course-form");
@@ -352,10 +411,6 @@ if (infoForm) {
       email: document.getElementById("info-email").value,
       hours: document.getElementById("info-hours").value,
       whatsapp: document.getElementById("info-whatsapp").value,
-      aboutTeachers: document.getElementById("info-about-teachers").value,
-      aboutSmallClass: document.getElementById("info-about-small-class").value,
-      aboutResults: document.getElementById("info-about-results").value,
-      aboutCloud: document.getElementById("info-about-cloud").value,
     };
     await postJSON("/api/tutor/info", data);
     await loadAll();
@@ -369,14 +424,12 @@ function renderAdminInfo() {
   document.getElementById("info-email") && (document.getElementById("info-email").value = siteInfo.email || "");
   document.getElementById("info-hours") && (document.getElementById("info-hours").value = siteInfo.hours || "");
   document.getElementById("info-whatsapp") && (document.getElementById("info-whatsapp").value = siteInfo.whatsapp || "");
-  document.getElementById("info-about-teachers") &&
-    (document.getElementById("info-about-teachers").value = siteInfo.aboutTeachers || "");
-  document.getElementById("info-about-small-class") &&
-    (document.getElementById("info-about-small-class").value = siteInfo.aboutSmallClass || "");
-  document.getElementById("info-about-results") &&
-    (document.getElementById("info-about-results").value = siteInfo.aboutResults || "");
-  document.getElementById("info-about-cloud") &&
-    (document.getElementById("info-about-cloud").value = siteInfo.aboutCloud || "");
+}
+
+if (isAdmin && adminPanel) {
+  requestAnimationFrame(() => {
+    adminPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 }
 
 /* Boot */
