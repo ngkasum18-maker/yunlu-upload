@@ -21,6 +21,32 @@ if (menuToggle && nav) {
 let courses = [];
 let announcements = [];
 let siteInfo = {};
+const defaultAboutItems = [
+  {
+    key: "aboutTeachers",
+    icon: "🎓",
+    title: "專業師資",
+    description: "擁有多年教學經驗，熟悉考試重點，針對學生弱項加強訓練。",
+  },
+  {
+    key: "aboutSmallClass",
+    icon: "📚",
+    title: "小班教學",
+    description: "每班人數有限，確保每位學生都得到充分關注同個別指導。",
+  },
+  {
+    key: "aboutResults",
+    icon: "📈",
+    title: "成績保證",
+    description: "配合度高嘅學生，成績進步率超過 90%，有口碑、有實績。",
+  },
+  {
+    key: "aboutCloud",
+    icon: "☁️",
+    title: "雲端教材",
+    description: "筆記、練習、錄影全部上載到雲端，隨時隨地重溫溫習。",
+  },
+];
 
 /* Helpers */
 function formatDate(ts) {
@@ -76,6 +102,7 @@ async function loadAll() {
 /* ---- Render ---- */
 function renderAll() {
   renderHeroStats();
+  renderAbout();
   renderCourses();
   renderAnnouncements();
   renderContact();
@@ -83,6 +110,24 @@ function renderAll() {
     renderAdminCourses();
     renderAdminAnnouncements();
     renderAdminInfo();
+  }
+}
+
+function renderAbout() {
+  const container = document.getElementById("about-content");
+  if (!container) return;
+  container.innerHTML = "";
+
+  for (const item of defaultAboutItems) {
+    const desc = siteInfo[item.key] || item.description;
+    const card = document.createElement("div");
+    card.className = "about-card";
+    card.innerHTML = `
+      <div class="about-icon">${item.icon}</div>
+      <h3>${item.title}</h3>
+      <p>${esc(desc)}</p>
+    `;
+    container.appendChild(card);
   }
 }
 
@@ -307,6 +352,10 @@ if (infoForm) {
       email: document.getElementById("info-email").value,
       hours: document.getElementById("info-hours").value,
       whatsapp: document.getElementById("info-whatsapp").value,
+      aboutTeachers: document.getElementById("info-about-teachers").value,
+      aboutSmallClass: document.getElementById("info-about-small-class").value,
+      aboutResults: document.getElementById("info-about-results").value,
+      aboutCloud: document.getElementById("info-about-cloud").value,
     };
     await postJSON("/api/tutor/info", data);
     await loadAll();
@@ -320,6 +369,14 @@ function renderAdminInfo() {
   document.getElementById("info-email") && (document.getElementById("info-email").value = siteInfo.email || "");
   document.getElementById("info-hours") && (document.getElementById("info-hours").value = siteInfo.hours || "");
   document.getElementById("info-whatsapp") && (document.getElementById("info-whatsapp").value = siteInfo.whatsapp || "");
+  document.getElementById("info-about-teachers") &&
+    (document.getElementById("info-about-teachers").value = siteInfo.aboutTeachers || "");
+  document.getElementById("info-about-small-class") &&
+    (document.getElementById("info-about-small-class").value = siteInfo.aboutSmallClass || "");
+  document.getElementById("info-about-results") &&
+    (document.getElementById("info-about-results").value = siteInfo.aboutResults || "");
+  document.getElementById("info-about-cloud") &&
+    (document.getElementById("info-about-cloud").value = siteInfo.aboutCloud || "");
 }
 
 /* Boot */
