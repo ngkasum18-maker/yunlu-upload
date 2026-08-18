@@ -279,6 +279,105 @@ app.delete("/api/photos/:id", (req, res) => {
   res.json({ ok: true });
 });
 
+/* ---------- Tutoring Centre API (cloud JSON storage) ---------- */
+const TUTOR_DIR = path.join(UPLOAD_DIR, "tutor");
+if (!fs.existsSync(TUTOR_DIR)) fs.mkdirSync(TUTOR_DIR, { recursive: true });
+
+function tutorFile(name) { return path.join(TUTOR_DIR, name); }
+
+function readTutorJSON(name) {
+  try {
+    const p = tutorFile(name);
+    if (!fs.existsSync(p)) return name === "info.json" ? {} : [];
+    const data = JSON.parse(fs.readFileSync(p, "utf8"));
+    return data;
+  } catch { return name === "info.json" ? {} : []; }
+}
+
+function writeTutorJSON(name, data) {
+  fs.writeFileSync(tutorFile(name), JSON.stringify(data, null, 2), "utf8");
+}
+
+app.get("/api/tutor/courses", (_req, res) => {
+  res.json({ courses: readTutorJSON("courses.json") });
+});
+
+app.post("/api/tutor/courses", (req, res) => {
+  const courses = readTutorJSON("courses.json");
+  const body = req.body || {};
+  if (body.id) {
+    const idx = courses.findIndex((c) => c.id === body.id);
+    if (idx >= 0) {
+      courses[idx] = { ...courses[idx], ...body, updatedAt: Date.now() };
+    } else {
+      return res.status(404).json({ error: "搵唔到課程" });
+    }
+  } else {
+    courses.push({
+      id: `crs-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
+      ...body,
+      createdAt: Date.now(),
+    });
+  }
+  writeTutorJSON("courses.json", courses);
+  res.json({ ok: true, courses });
+});
+
+app.delete("/api/tutor/courses/:id", (req, res) => {
+  let courses = readTutorJSON("courses.json");
+  const before = courses.length;
+  courses = courses.filter((c) => c.id !== req.params.id);
+  if (courses.length === before) return res.status(404).json({ error: "搵唔到課程" });
+  writeTutorJSON("courses.json", courses);
+  res.json({ ok: true });
+});
+
+app.get("/api/tutor/announcements", (_req, res) => {
+  const items = readTutorJSON("announcements.json");
+  items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  res.json({ announcements: items });
+});
+
+app.post("/api/tutor/announcements", (req, res) => {
+  const items = readTutorJSON("announcements.json");
+  const body = req.body || {};
+  if (body.id) {
+    const idx = items.findIndex((a) => a.id === body.id);
+    if (idx >= 0) {
+      items[idx] = { ...items[idx], ...body, updatedAt: Date.now() };
+    } else {
+      return res.status(404).json({ error: "搵唔到公告" });
+    }
+  } else {
+    items.push({
+      id: `ann-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`,
+      ...body,
+      createdAt: Date.now(),
+    });
+  }
+  writeTutorJSON("announcements.json", items);
+  res.json({ ok: true, announcements: items });
+});
+
+app.delete("/api/tutor/announcements/:id", (req, res) => {
+  let items = readTutorJSON("announcements.json");
+  const before = items.length;
+  items = items.filter((a) => a.id !== req.params.id);
+  if (items.length === before) return res.status(404).json({ error: "搵唔到公告" });
+  writeTutorJSON("announcements.json", items);
+  res.json({ ok: true });
+});
+
+app.get("/api/tutor/info", (_req, res) => {
+  res.json({ info: readTutorJSON("info.json") });
+});
+
+app.post("/api/tutor/info", (req, res) => {
+  const info = { ...readTutorJSON("info.json"), ...req.body, updatedAt: Date.now() };
+  writeTutorJSON("info.json", info);
+  res.json({ ok: true, info });
+});
+
 app.get("/api/health", (_req, res) => {
   res.json({
     ok: true,

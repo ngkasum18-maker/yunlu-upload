@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>雲路補習社 Yunlu Tutorial Centre</title>
+    <meta name="description" content="雲路補習社——專業補習、用心教學，助你成績進步。課程資訊、最新公告、聯絡我哋。" />
+    <meta name="theme-color" content="#1f6b4f" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icons/icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/tutor.css" />
+  </head>
+  <body>
+    <div class="atmosphere" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="logo" href="/tutor.html">雲路補習社 <span>Tutorial Centre</span></a>
+      <nav class="nav" id="nav">
+        <a href="#about">關於我哋</a>
+        <a href="#courses">課程</a>
+        <a href="#announcements">公告</a>
+        <a href="#contact">聯絡</a>
+        <a href="/" class="nav-upload">檔案上載</a>
+      </nav>
+      <button class="menu-toggle" id="menu-toggle" aria-label="開關選單">☰</button>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section class="hero" id="hero">
+        <h1 class="hero-title">雲路補習社</h1>
+        <p class="hero-sub">專業補習 · 用心教學 · 助你進步</p>
+        <div class="hero-cta">
+          <a href="#courses" class="cta">瀏覽課程</a>
+          <a href="#contact" class="cta cta-secondary">聯絡我哋</a>
+        </div>
+        <div class="hero-stats" id="hero-stats"></div>
+      </section>
+
+      <!-- About -->
+      <section class="section" id="about">
+        <h2 class="section-title">關於我哋</h2>
+        <div class="about-grid" id="about-content">
+          <div class="about-card">
+            <div class="about-icon">🎓</div>
+            <h3>專業師資</h3>
+            <p>擁有多年教學經驗，熟悉考試重點，針對學生弱項加強訓練。</p>
+          </div>
+          <div class="about-card">
+            <div class="about-icon">📚</div>
+            <h3>小班教學</h3>
+            <p>每班人數有限，確保每位學生都得到充分關注同個別指導。</p>
+          </div>
+          <div class="about-card">
+            <div class="about-icon">📈</div>
+            <h3>成績保證</h3>
+            <p>配合度高嘅學生，成績進步率超過 90%，有口碑、有實績。</p>
+          </div>
+          <div class="about-card">
+            <div class="about-icon">☁️</div>
+            <h3>雲端教材</h3>
+            <p>筆記、練習、錄影全部上載到雲端，隨時隨地重溫溫習。</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Courses -->
+      <section class="section" id="courses">
+        <h2 class="section-title">課程一覽</h2>
+        <p class="section-sub">以下係我哋提供嘅課程，詳情請聯絡查詢。</p>
+        <div class="courses-grid" id="courses-grid">
+          <p class="loading">載入課程資料…</p>
+        </div>
+      </section>
+
+      <!-- Announcements -->
+      <section class="section" id="announcements">
+        <h2 class="section-title">最新公告</h2>
+        <div class="announce-list" id="announce-list">
+          <p class="loading">載入公告…</p>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section class="section" id="contact">
+        <h2 class="section-title">聯絡我哋</h2>
+        <div class="contact-grid" id="contact-grid">
+          <div class="contact-card">
+            <h3>📍 地址</h3>
+            <p id="contact-address">載入中…</p>
+          </div>
+          <div class="contact-card">
+            <h3>📞 電話</h3>
+            <p id="contact-phone">載入中…</p>
+          </div>
+          <div class="contact-card">
+            <h3>📧 電郵</h3>
+            <p id="contact-email">載入中…</p>
+          </div>
+          <div class="contact-card">
+            <h3>🕐 辦公時間</h3>
+            <p id="contact-hours">載入中…</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Admin Panel (hidden by default, toggle with ?admin=1) -->
+      <section class="section admin-panel" id="admin" hidden>
+        <h2 class="section-title">管理面板</h2>
+        <div class="admin-tabs">
+          <button class="admin-tab is-active" data-tab="courses-admin">課程管理</button>
+          <button class="admin-tab" data-tab="announce-admin">公告管理</button>
+          <button class="admin-tab" data-tab="info-admin">基本資料</button>
+        </div>
+
+        <div class="admin-content" id="courses-admin">
+          <h3>新增 / 編輯課程</h3>
+          <form id="course-form" class="admin-form">
+            <input type="hidden" name="id" id="course-id" />
+            <label>課程名稱 <input type="text" name="name" id="course-name" required /></label>
+            <label>對象 <input type="text" name="target" id="course-target" placeholder="例：中一至中三" /></label>
+            <label>時間 <input type="text" name="schedule" id="course-schedule" placeholder="例：逢星期六 10:00-12:00" /></label>
+            <label>學費 <input type="text" name="fee" id="course-fee" placeholder="例：$800/月" /></label>
+            <label>簡介 <textarea name="description" id="course-desc" rows="3"></textarea></label>
+            <div class="admin-form-actions">
+              <button type="submit" class="cta">儲存課程</button>
+              <button type="button" class="cta cta-secondary" id="course-reset">清除</button>
+            </div>
+          </form>
+          <div id="courses-admin-list"></div>
+        </div>
+
+        <div class="admin-content" id="announce-admin" hidden>
+          <h3>新增公告</h3>
+          <form id="announce-form" class="admin-form">
+            <input type="hidden" name="id" id="announce-id" />
+            <label>標題 <input type="text" name="title" id="announce-title" required /></label>
+            <label>內容 <textarea name="content" id="announce-content" rows="4" required></textarea></label>
+            <div class="admin-form-actions">
+              <button type="submit" class="cta">發佈公告</button>
+              <button type="button" class="cta cta-secondary" id="announce-reset">清除</button>
+            </div>
+          </form>
+          <div id="announce-admin-list"></div>
+        </div>
+
+        <div class="admin-content" id="info-admin" hidden>
+          <h3>補習社基本資料</h3>
+          <form id="info-form" class="admin-form">
+            <label>補習社名稱 <input type="text" name="name" id="info-name" /></label>
+            <label>地址 <input type="text" name="address" id="info-address" /></label>
+            <label>電話 <input type="text" name="phone" id="info-phone" /></label>
+            <label>電郵 <input type="email" name="email" id="info-email" /></label>
+            <label>辦公時間 <input type="text" name="hours" id="info-hours" placeholder="例：星期一至六 14:00-21:00" /></label>
+            <label>WhatsApp 連結 <input type="url" name="whatsapp" id="info-whatsapp" placeholder="https://wa.me/852..." /></label>
+            <div class="admin-form-actions">
+              <button type="submit" class="cta">儲存資料</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2024–2026 雲路補習社 Yunlu Tutorial Centre</p>
+      <p class="footer-sub">資料儲存喺雲端，隨時更新。</p>
+    </footer>
+
+    <script src="/tutor.js"></script>
+  </body>
+</html>
