@@ -12,6 +12,7 @@ const DATA_DIR = process.env.DATA_DIR
   : path.join(ROOT, "uploads");
 const UPLOAD_DIR = DATA_DIR;
 const META_FILE = path.join(UPLOAD_DIR, "manifest.json");
+const STATS_FILE = path.join(UPLOAD_DIR, "stats.json");
 
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -161,6 +162,56 @@ const upload = multer({
   },
 });
 
+function defaultStats() {
+  return {
+    pageViews: 0,
+    uniqueVisitors: 0,
+    filePreviews: 0,
+    visitors: {},
+    files: {},
+  };
+}
+
+function readStats() {
+  try {
+    if (!fs.existsSync(STATS_FILE)) return defaultStats();
+    const data = JSON.parse(fs.readFileSync(STATS_FILE, "utf8"));
+    return { ...defaultStats(), ...data, visitors: data.visitors || {}, files: data.files || {} };
+  } catch {
+    return defaultStats();
+  }
+}
+
+function writeStats(stats) {
+  fs.writeFileSync(STATS_FILE, JSON.stringify(stats, null, 2), "utf8");
+}
+
+function publicStats(stats) {
+  const fileViews = {};
+  for (const [id, count] of Object.entries(stats.files || {})) {
+    fileViews[id] = Number(count) || 0;
+  }
+  return {
+    pageViews: Number(stats.pageViews) || 0,
+    uniqueVisitors: Number(stats.uniqueVisitors) || 0,
+    filePreviews: Number(stats.filePreviews) || 0,
+    fileViews,
+  };
+}
+
+function visitorIdFromCookie(req) {
+  const raw = req.headers.cookie || "";
+  const match = raw.match(/(?:^|;\s*)yunlu_vid=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+function setVisitorCookie(res, visitorId) {
+  res.setHeader(
+    "Set-Cookie",
+    `yunlu_vid=${encodeURIComponent(visitorId)}; Path=/; Max-Age=31536000; SameSite=Lax`
+  );
+}
+
 function toRecord(file) {
   const ext = path.extname(file.filename).toLowerCase();
   return {
@@ -176,11 +227,16 @@ function toRecord(file) {
 }
 
 function listFiles() {
+  const views = readStats().files || {};
   return readManifest()
     .map((item) => {
-      if (item.kind) return item;
       const ext = path.extname(item.filename || "").toLowerCase();
-      return { ...item, kind: kindFrom(item.mimeType || "", ext) };
+      const kind = item.kind || kindFrom(item.mimeType || "", ext);
+      return {
+        ...item,
+        kind,
+        previewCount: Number(views[item.id] || item.previewCount || 0),
+      };
     })
     .sort((a, b) => b.createdAt - a.createdAt);
 }
@@ -423,12 +479,58 @@ app.delete("/api/tutor/teachers/:id", (req, res) => {
   res.json({ ok: true });
 });
 
+app.get("/api/stats", (_req, res) => {
+  res.json(publicStats(readStats()));
+});
+
+app.post("/api/stats/visit", (req, res) => {
+  const stats = readStats();
+  let visitorId = visitorIdFromCookie(req);
+  const now = Date.now();
+  const isNew = !visitorId || !stats.visitors[visitorId];
+
+  if (!visitorId) {
+    visitorId = crypto.randomBytes(12).toString("hex");
+  }
+
+  stats.pageViews += 1;
+  if (isNew) {
+    stats.uniqueVisitors += 1;
+  }
+  stats.visitors[visitorId] = now;
+  writeStats(stats);
+  setVisitorCookie(res, visitorId);
+  res.json(publicStats(stats));
+});
+
+app.post("/api/stats/preview", (req, res) => {
+  const id = String(req.body?.id || "").trim();
+  if (!id) {
+    return res.status(400).json({ error: "未指定檔案" });
+  }
+
+  const exists = readManifest().some((entry) => entry.id === id);
+  if (!exists) {
+    return res.status(404).json({ error: "搵唔到檔案" });
+  }
+
+  const stats = readStats();
+  stats.filePreviews += 1;
+  stats.files[id] = (Number(stats.files[id]) || 0) + 1;
+  writeStats(stats);
+  res.json({ ...publicStats(stats), previewCount: stats.files[id] });
+});
+
 app.get("/api/health", (_req, res) => {
+  const stats = readStats();
   res.json({
     ok: true,
     service: "yunlu-upload",
     dataDir: UPLOAD_DIR,
     files: readManifest().length,
+    pageViews: stats.pageViews,
+    uniqueVisitors: stats.uniqueVisitors,
+    filePreviews: stats.filePreviews,
   });
 });
 

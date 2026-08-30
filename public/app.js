@@ -9,6 +9,7 @@ const progressLabel = document.getElementById("progress-label");
 const gallery = document.getElementById("gallery");
 const empty = document.getElementById("empty");
 const fileCountEl = document.getElementById("file-count");
+const visitCountEl = document.getElementById("visit-count");
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
 const lightboxName = document.getElementById("lightbox-name");
@@ -70,6 +71,49 @@ function fileKind(item) {
   const name = (item.originalName || item.filename || "").toLowerCase();
   if (WORD_EXTS.some((ext) => name.endsWith(ext))) return "document";
   return "photo";
+}
+
+function renderVisitCount(stats) {
+  if (!visitCountEl || !stats) return;
+  const views = Number(stats.pageViews) || 0;
+  const people = Number(stats.uniqueVisitors) || 0;
+  const previews = Number(stats.filePreviews) || 0;
+  visitCountEl.textContent = `預覽 ${previews} 人次 · 訪客 ${people} 人 · 瀏覽 ${views} 次`;
+}
+
+async function loadStats() {
+  const res = await fetch("/api/stats");
+  if (!res.ok) return;
+  renderVisitCount(await res.json());
+}
+
+async function recordVisit() {
+  try {
+    const res = await fetch("/api/stats/visit", { method: "POST" });
+    if (!res.ok) return;
+    renderVisitCount(await res.json());
+  } catch {
+    // ignore analytics failures
+  }
+}
+
+async function recordPreview(id) {
+  if (!id) return;
+  try {
+    const res = await fetch("/api/stats/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    renderVisitCount(data);
+    const item = allFiles.find((entry) => entry.id === id);
+    if (item) item.previewCount = data.previewCount;
+    renderGallery();
+  } catch {
+    // ignore analytics failures
+  }
 }
 
 async function loadFiles() {
@@ -172,11 +216,23 @@ function renderGallery() {
       hint.className = "doc-open";
       hint.textContent = "撳開閱讀";
 
-      body.append(badge, title, meta, hint);
+      const views = document.createElement("p");
+      views.className = "preview-count";
+      views.textContent = `預覽 ${Number(item.previewCount) || 0} 人次`;
+
+      body.append(badge, title, meta, hint, views);
       card.appendChild(body);
     }
 
+    if (kind === "photo") {
+      const views = document.createElement("span");
+      views.className = "preview-badge";
+      views.textContent = `預覽 ${Number(item.previewCount) || 0}`;
+      card.appendChild(views);
+    }
+
     const openForRead = () => {
+      recordPreview(item.id);
       if (kind === "photo") openLightbox(item, displayName, downloadUrl);
       else openDocumentReader(item, displayName, downloadUrl);
     };
@@ -544,6 +600,8 @@ loadFiles().catch(() => {
   setStatus("暫時讀唔到檔案庫", "is-error");
   empty.hidden = false;
 });
+loadStats();
+recordVisit();
 
 /* ---------- Progressive Web App (installable) ---------- */
 const installBtn = document.getElementById("install-btn");
