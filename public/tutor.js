@@ -51,6 +51,50 @@ const defaultAboutItems = [
 ];
 
 /* Helpers */
+const FEE_PERIOD_SUFFIX = { month: "/月", year: "/年" };
+
+function normalizeFeePeriod(period) {
+  return period === "month" ? "month" : "year";
+}
+
+function stripFeeSuffix(fee) {
+  return String(fee || "").trim().replace(/\/[月年]$/, "");
+}
+
+function formatCourseFee(course) {
+  const raw = String(course?.fee || "").trim();
+  if (!raw) return "";
+
+  if (/\/[月年]$/.test(raw)) {
+    return raw.replace(/\/月$/, "/年");
+  }
+
+  const period = normalizeFeePeriod(course?.feePeriod);
+  return `${raw}${FEE_PERIOD_SUFFIX[period]}`;
+}
+
+function parseCourseFee(course) {
+  const raw = String(course?.fee || "").trim();
+  if (!raw) {
+    return { amount: "", period: normalizeFeePeriod(course?.feePeriod) };
+  }
+
+  if (/\/月$/.test(raw)) {
+    return { amount: stripFeeSuffix(raw), period: "month" };
+  }
+  if (/\/年$/.test(raw)) {
+    return { amount: stripFeeSuffix(raw), period: "year" };
+  }
+
+  return { amount: raw, period: normalizeFeePeriod(course?.feePeriod) };
+}
+
+function buildCourseFee(amount, period) {
+  const value = String(amount || "").trim();
+  if (!value) return "";
+  return `${stripFeeSuffix(value)}${FEE_PERIOD_SUFFIX[normalizeFeePeriod(period)]}`;
+}
+
 function formatDate(ts) {
   try {
     return new Intl.DateTimeFormat("zh-HK", {
@@ -222,7 +266,7 @@ function renderCourses() {
       <div class="course-meta">
         ${c.target ? `<span class="course-tag">${esc(c.target)}</span>` : ""}
         ${c.schedule ? `<span class="course-tag">${esc(c.schedule)}</span>` : ""}
-        ${c.fee ? `<span class="course-tag fee">${esc(c.fee)}</span>` : ""}
+        ${c.fee ? `<span class="course-tag fee">${esc(formatCourseFee(c))}</span>` : ""}
       </div>
       ${c.description ? `<p class="course-desc">${esc(c.description)}</p>` : ""}
     `;
@@ -422,7 +466,11 @@ if (courseForm) {
       name: document.getElementById("course-name").value,
       target: document.getElementById("course-target").value,
       schedule: document.getElementById("course-schedule").value,
-      fee: document.getElementById("course-fee").value,
+      fee: buildCourseFee(
+        document.getElementById("course-fee").value,
+        document.getElementById("course-fee-period")?.value
+      ),
+      feePeriod: normalizeFeePeriod(document.getElementById("course-fee-period")?.value),
       description: document.getElementById("course-desc").value,
     };
     await postJSON("/api/tutor/courses", data);
@@ -435,6 +483,8 @@ if (courseForm) {
 document.getElementById("course-reset")?.addEventListener("click", () => {
   courseForm?.reset();
   document.getElementById("course-id").value = "";
+  const feePeriodEl = document.getElementById("course-fee-period");
+  if (feePeriodEl) feePeriodEl.value = "year";
 });
 
 function renderAdminCourses() {
@@ -462,7 +512,10 @@ function editCourse(c) {
   document.getElementById("course-name").value = c.name || "";
   document.getElementById("course-target").value = c.target || "";
   document.getElementById("course-schedule").value = c.schedule || "";
-  document.getElementById("course-fee").value = c.fee || "";
+  const { amount, period } = parseCourseFee(c);
+  document.getElementById("course-fee").value = amount;
+  const feePeriodEl = document.getElementById("course-fee-period");
+  if (feePeriodEl) feePeriodEl.value = period;
   document.getElementById("course-desc").value = c.description || "";
   document.getElementById("course-name").focus();
 }

@@ -537,9 +537,25 @@ main {
   transition: border-color 0.2s;
 }
 .admin-form input:focus,
-.admin-form textarea:focus {
+.admin-form textarea:focus,
+.admin-form select:focus {
   outline: none;
   border-color: var(--jade-bright);
+}
+.admin-form select {
+  padding: 0.65rem 0.85rem;
+  border: 1px solid rgba(197,214,200,0.2);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--fog);
+  background: rgba(15,24,18,0.6);
+  transition: border-color 0.2s;
+}
+.fee-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
 }
 .admin-form-actions {
   display: flex; gap: 0.5rem;

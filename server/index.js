@@ -354,13 +354,46 @@ function writeTutorJSON(name, data) {
   fs.writeFileSync(tutorFile(name), JSON.stringify(data, null, 2), "utf8");
 }
 
+function normalizeCourseFee(course) {
+  const next = { ...course };
+  let changed = false;
+
+  if (typeof next.fee === "string") {
+    const trimmed = next.fee.trim();
+    if (/\/月$/.test(trimmed)) {
+      next.fee = trimmed.replace(/\/月$/, "/年");
+      next.feePeriod = "year";
+      changed = true;
+    }
+  }
+
+  if (!next.feePeriod) {
+    next.feePeriod = "year";
+    changed = true;
+  }
+
+  return { course: next, changed };
+}
+
+function readCourses() {
+  const courses = readTutorJSON("courses.json");
+  let changed = false;
+  const normalized = courses.map((course) => {
+    const result = normalizeCourseFee(course);
+    if (result.changed) changed = true;
+    return result.course;
+  });
+  if (changed) writeTutorJSON("courses.json", normalized);
+  return normalized;
+}
+
 app.get("/api/tutor/courses", (_req, res) => {
-  res.json({ courses: readTutorJSON("courses.json") });
+  res.json({ courses: readCourses() });
 });
 
 app.post("/api/tutor/courses", (req, res) => {
-  const courses = readTutorJSON("courses.json");
-  const body = req.body || {};
+  const courses = readCourses();
+  const body = normalizeCourseFee(req.body || {}).course;
   if (body.id) {
     const idx = courses.findIndex((c) => c.id === body.id);
     if (idx >= 0) {
@@ -380,7 +413,7 @@ app.post("/api/tutor/courses", (req, res) => {
 });
 
 app.delete("/api/tutor/courses/:id", (req, res) => {
-  let courses = readTutorJSON("courses.json");
+  let courses = readCourses();
   const before = courses.length;
   courses = courses.filter((c) => c.id !== req.params.id);
   if (courses.length === before) return res.status(404).json({ error: "搵唔到課程" });
