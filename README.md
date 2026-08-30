@@ -38,6 +38,7 @@ npm start
 - 拖放 / 點選 /「貼上」掣或 Ctrl/⌘ + V 上載相片（JPG、PNG、WebP、GIF 等）同 Word（DOC、DOCX）
 - 上載進度顯示
 - 雲端檔案庫：篩選全部／相片／Word，顯示檔案總數
+- 顯示預覽人數：網站訪客、瀏覽次數、每個檔案被打開幾多次
 - 相片預覽放大；Word（.docx）撳開即可閱讀；相片同 Word 都可下載（保留中文檔名）
 - Word 顯示完整檔名標題
 - 刪除記錄（同步刪除實體檔案）
@@ -58,6 +59,9 @@ npm start
 | Method | Path | 說明 |
 |--------|------|------|
 | `GET` | `/api/health` | 健康檢查 |
+| `GET` | `/api/stats` | 預覽人數（訪客、瀏覽、檔案預覽） |
+| `POST` | `/api/stats/visit` | 記錄一次網站瀏覽 |
+| `POST` | `/api/stats/preview` | 記錄一次檔案預覽（`{ id }`） |
 | `GET` | `/api/files` | 列出所有檔案 |
 | `POST` | `/api/files` | 上載檔案（`multipart/form-data`，欄位名 `files`） |
 | `GET` | `/api/files/:id/download` | 下載檔案（保留中文檔名） |
