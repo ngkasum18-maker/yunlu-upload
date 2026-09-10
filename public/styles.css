@@ -139,6 +139,43 @@ body {
   font-size: 0.95rem;
 }
 
+.delete-password-label {
+  display: block;
+  margin: 1rem 0 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--fog);
+}
+
+.delete-password-input {
+  width: 100%;
+  border: 1px solid color-mix(in srgb, var(--mist) 35%, transparent);
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--fog);
+  background: rgba(8, 12, 10, 0.45);
+}
+
+.delete-password-input:focus {
+  outline: 2px solid var(--jade-bright);
+  outline-offset: 1px;
+}
+
+.delete-password-error {
+  margin: 0.45rem 0 0;
+  font-size: 0.85rem;
+  color: #f0b4ab;
+}
+
+.install-dialog-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
 .install-steps {
   margin: 1rem 0 0;
   padding-left: 1.2rem;
@@ -146,12 +183,6 @@ body {
   gap: 0.55rem;
   color: var(--fog);
   font-size: 0.95rem;
-}
-
-.install-dialog-actions {
-  margin-top: 1.25rem;
-  display: flex;
-  justify-content: flex-end;
 }
 
 main {

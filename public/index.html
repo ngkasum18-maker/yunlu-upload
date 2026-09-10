@@ -113,6 +113,28 @@
       </div>
     </dialog>
 
+    <dialog id="delete-dialog" class="install-dialog" aria-labelledby="delete-dialog-title">
+      <form id="delete-form" class="install-dialog-inner">
+        <h2 id="delete-dialog-title">確認拆除</h2>
+        <p class="install-dialog-lead" id="delete-dialog-lead">請輸入密碼先可以拆除呢個檔案。</p>
+        <label class="delete-password-label" for="delete-password">拆除密碼</label>
+        <input
+          id="delete-password"
+          class="delete-password-input"
+          type="password"
+          name="password"
+          inputmode="numeric"
+          autocomplete="off"
+          required
+        />
+        <p class="delete-password-error" id="delete-password-error" hidden>密碼不正確</p>
+        <div class="install-dialog-actions">
+          <button type="button" class="cta cta-secondary" id="delete-cancel">取消</button>
+          <button type="submit" class="cta" id="delete-confirm">拆除</button>
+        </div>
+      </form>
+    </dialog>
+
     <dialog id="install-dialog" class="install-dialog" aria-labelledby="install-dialog-title">
       <form method="dialog" class="install-dialog-inner">
         <h2 id="install-dialog-title">安裝雲路 App</h2>
