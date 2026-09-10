@@ -77,7 +77,17 @@ async function postJSON(url, data) {
 }
 
 async function deleteJSON(url) {
-  const res = await fetch(url, { method: "DELETE" });
+  const password = window.prompt("請輸入拆除密碼");
+  if (password == null) throw new Error("已取消");
+  const res = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Delete-Password": password,
+    },
+    body: JSON.stringify({ password }),
+  });
+  if (res.status === 401) throw new Error("密碼不正確，未能拆除");
   if (!res.ok) throw new Error("刪除失敗");
   return res.json();
 }

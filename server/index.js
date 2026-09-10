@@ -13,6 +13,7 @@ const DATA_DIR = process.env.DATA_DIR
 const UPLOAD_DIR = DATA_DIR;
 const META_FILE = path.join(UPLOAD_DIR, "manifest.json");
 const STATS_FILE = path.join(UPLOAD_DIR, "stats.json");
+const DELETE_PASSWORD = String(process.env.DELETE_PASSWORD || "1014");
 
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -255,6 +256,27 @@ function deleteById(id) {
   return item;
 }
 
+function submittedDeletePassword(req) {
+  const header = req.get("x-delete-password");
+  const body = req.body && typeof req.body === "object" ? req.body.password : "";
+  const query = req.query && req.query.password;
+  return String(header || body || query || "");
+}
+
+function passwordsMatch(input, expected) {
+  const a = Buffer.from(String(input));
+  const b = Buffer.from(String(expected));
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
+function requireDeletePassword(req, res, next) {
+  if (!passwordsMatch(submittedDeletePassword(req), DELETE_PASSWORD)) {
+    return res.status(401).json({ error: "密碼不正確，未能拆除" });
+  }
+  next();
+}
+
 app.use(express.json());
 app.use(
   express.static(path.join(ROOT, "public"), {
@@ -302,7 +324,7 @@ app.post("/api/files", upload.array("files", 20), (req, res) => {
   res.status(201).json({ files: added });
 });
 
-app.delete("/api/files/:id", (req, res) => {
+app.delete("/api/files/:id", requireDeletePassword, (req, res) => {
   const item = deleteById(req.params.id);
   if (!item) {
     return res.status(404).json({ error: "搵唔到檔案" });
@@ -327,7 +349,7 @@ app.post("/api/photos", upload.array("photos", 20), (req, res) => {
   res.status(201).json({ photos: added, files: added });
 });
 
-app.delete("/api/photos/:id", (req, res) => {
+app.delete("/api/photos/:id", requireDeletePassword, (req, res) => {
   const item = deleteById(req.params.id);
   if (!item) {
     return res.status(404).json({ error: "搵唔到相片" });
@@ -379,7 +401,7 @@ app.post("/api/tutor/courses", (req, res) => {
   res.json({ ok: true, courses });
 });
 
-app.delete("/api/tutor/courses/:id", (req, res) => {
+app.delete("/api/tutor/courses/:id", requireDeletePassword, (req, res) => {
   let courses = readTutorJSON("courses.json");
   const before = courses.length;
   courses = courses.filter((c) => c.id !== req.params.id);
@@ -415,7 +437,7 @@ app.post("/api/tutor/announcements", (req, res) => {
   res.json({ ok: true, announcements: items });
 });
 
-app.delete("/api/tutor/announcements/:id", (req, res) => {
+app.delete("/api/tutor/announcements/:id", requireDeletePassword, (req, res) => {
   let items = readTutorJSON("announcements.json");
   const before = items.length;
   items = items.filter((a) => a.id !== req.params.id);
@@ -470,7 +492,7 @@ app.post("/api/tutor/teachers", (req, res) => {
   res.json({ ok: true, teachers });
 });
 
-app.delete("/api/tutor/teachers/:id", (req, res) => {
+app.delete("/api/tutor/teachers/:id", requireDeletePassword, (req, res) => {
   let teachers = readTutorJSON("teachers.json");
   const before = teachers.length;
   teachers = teachers.filter((t) => t.id !== req.params.id);

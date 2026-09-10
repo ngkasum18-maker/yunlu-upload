@@ -361,18 +361,72 @@ if (reader) {
 
 async function deleteFile(id, kind) {
   const label = kind === "document" ? "Word 文件" : "相片";
-  const confirmed = window.confirm(`確定刪除呢個${label}？`);
-  if (!confirmed) return;
+  const password = await askDeletePassword(`請輸入密碼先可以拆除呢個${label}。`);
+  if (password == null) return;
+  if (!password) {
+    setStatus("請輸入拆除密碼", "is-error");
+    return;
+  }
 
   const res = await fetch(`/api/files/${encodeURIComponent(id)}`, {
     method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Delete-Password": password,
+    },
+    body: JSON.stringify({ password }),
   });
+  if (res.status === 401) {
+    setStatus("密碼不正確，未能拆除", "is-error");
+    return;
+  }
   if (!res.ok) {
     setStatus("刪除失敗，請再試", "is-error");
     return;
   }
-  setStatus(`已刪除${label}`, "is-ok");
+  setStatus(`已拆除${label}`, "is-ok");
   await loadFiles();
+}
+
+function askDeletePassword(message) {
+  const dialog = document.getElementById("delete-dialog");
+  const form = document.getElementById("delete-form");
+  const input = document.getElementById("delete-password");
+  const lead = document.getElementById("delete-dialog-lead");
+  const error = document.getElementById("delete-password-error");
+  const cancel = document.getElementById("delete-cancel");
+
+  if (!dialog || !form || !input) {
+    const typed = window.prompt(message || "請輸入拆除密碼");
+    return Promise.resolve(typed);
+  }
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (value) => {
+      if (settled) return;
+      settled = true;
+      dialog.close();
+      resolve(value);
+    };
+
+    if (lead) lead.textContent = message || "請輸入密碼先可以拆除呢個檔案。";
+    if (error) error.hidden = true;
+    input.value = "";
+
+    const onSubmit = (e) => {
+      e.preventDefault();
+      finish(input.value.trim());
+    };
+    const onCancel = () => finish(null);
+    const onClose = () => finish(null);
+
+    form.addEventListener("submit", onSubmit, { once: true });
+    cancel?.addEventListener("click", onCancel, { once: true });
+    dialog.addEventListener("close", onClose, { once: true });
+    dialog.showModal();
+    input.focus();
+  });
 }
 
 function uploadFiles(files) {
