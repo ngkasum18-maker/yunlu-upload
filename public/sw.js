@@ -1,9 +1,9 @@
-const CACHE = "yunlu-shell-v1";
+const CACHE = "yunlu-shell-v3";
 const SHELL = [
   "/",
   "/index.html",
-  "/styles.css",
-  "/app.js",
+  "/styles.css?v=20260911",
+  "/app.js?v=20260911",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
@@ -31,8 +31,15 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Always go to network for API and uploaded files.
-  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/uploads/")) {
+  if (
+    url.pathname.startsWith("/api/") ||
+    url.pathname.startsWith("/uploads/") ||
+    url.pathname.endsWith(".js") ||
+    url.pathname.endsWith(".css") ||
+    url.pathname === "/" ||
+    url.pathname.endsWith(".html")
+  ) {
+    event.respondWith(fetch(request).catch(() => caches.match(request)));
     return;
   }
 

@@ -402,14 +402,17 @@ async function deleteFile(id, kind) {
 }
 
 async function sendDelete(id, kind, label, password, options = {}) {
-  const res = await fetch(`/api/files/${encodeURIComponent(id)}`, {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Delete-Password": password,
-    },
-    body: JSON.stringify({ password }),
-  });
+  let res;
+  try {
+    res = await fetch(`/api/files/${encodeURIComponent(id)}/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+  } catch {
+    setStatus("網絡錯誤，拆除失敗。請刷新頁面再試。", "is-error");
+    return false;
+  }
 
   if (res.status === 401) {
     if (options.errorEl) {
@@ -830,8 +833,11 @@ window.addEventListener("appinstalled", () => {
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch((err) => {
-      console.warn("Service worker registration failed", err);
-    });
+    navigator.serviceWorker
+      .register("/sw.js", { updateViaCache: "none" })
+      .then((reg) => reg.update())
+      .catch((err) => {
+        console.warn("Service worker registration failed", err);
+      });
   });
 }

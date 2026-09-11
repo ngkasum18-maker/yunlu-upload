@@ -332,6 +332,14 @@ app.delete("/api/files/:id", requireDeletePassword, (req, res) => {
   res.json({ ok: true });
 });
 
+app.post("/api/files/:id/delete", requireDeletePassword, (req, res) => {
+  const item = deleteById(req.params.id);
+  if (!item) {
+    return res.status(404).json({ error: "搵唔到檔案" });
+  }
+  res.json({ ok: true });
+});
+
 // Backward-compatible photo endpoints
 app.get("/api/photos", (_req, res) => {
   const photos = listFiles().filter((item) => item.kind === "photo");
