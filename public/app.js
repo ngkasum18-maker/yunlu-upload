@@ -361,13 +361,47 @@ if (reader) {
 
 async function deleteFile(id, kind) {
   const label = kind === "document" ? "Word 文件" : "相片";
-  const password = await askDeletePassword(`請輸入密碼先可以拆除呢個${label}。`);
-  if (password == null) return;
-  if (!password) {
-    setStatus("請輸入拆除密碼", "is-error");
+  const dialog = document.getElementById("delete-dialog");
+  const form = document.getElementById("delete-form");
+  const input = document.getElementById("delete-password");
+  const lead = document.getElementById("delete-dialog-lead");
+  const error = document.getElementById("delete-password-error");
+
+  if (!dialog || !form || !input) {
+    const typed = window.prompt(`請輸入密碼先可以拆除呢個${label}。`);
+    if (typed == null) return;
+    await sendDelete(id, kind, label, typed.trim());
     return;
   }
 
+  if (lead) lead.textContent = `請輸入密碼先可以拆除呢個${label}。`;
+  if (error) error.hidden = true;
+  input.value = "";
+
+  const onSubmit = async (e) => {
+    const submitter = e.submitter;
+    if (submitter && submitter.value === "cancel") return;
+    e.preventDefault();
+    const password = input.value.trim();
+    if (!password) {
+      if (error) {
+        error.textContent = "請輸入拆除密碼";
+        error.hidden = false;
+      }
+      return;
+    }
+    const ok = await sendDelete(id, kind, label, password, { keepDialog: true, errorEl: error });
+    if (ok) dialog.close("deleted");
+  };
+
+  form.addEventListener("submit", onSubmit);
+  const onClose = () => form.removeEventListener("submit", onSubmit);
+  dialog.addEventListener("close", onClose, { once: true });
+  dialog.showModal();
+  requestAnimationFrame(() => input.focus());
+}
+
+async function sendDelete(id, kind, label, password, options = {}) {
   const res = await fetch(`/api/files/${encodeURIComponent(id)}`, {
     method: "DELETE",
     headers: {
@@ -376,57 +410,34 @@ async function deleteFile(id, kind) {
     },
     body: JSON.stringify({ password }),
   });
+
   if (res.status === 401) {
+    if (options.errorEl) {
+      options.errorEl.textContent = "密碼不正確，未能拆除";
+      options.errorEl.hidden = false;
+    }
     setStatus("密碼不正確，未能拆除", "is-error");
-    return;
+    return false;
   }
   if (!res.ok) {
-    setStatus("刪除失敗，請再試", "is-error");
-    return;
+    let message = "刪除失敗，請再試";
+    try {
+      const payload = await res.json();
+      if (payload.error) message = payload.error;
+    } catch {
+      // keep default
+    }
+    if (options.errorEl) {
+      options.errorEl.textContent = message;
+      options.errorEl.hidden = false;
+    }
+    setStatus(message, "is-error");
+    return false;
   }
+
   setStatus(`已拆除${label}`, "is-ok");
   await loadFiles();
-}
-
-function askDeletePassword(message) {
-  const dialog = document.getElementById("delete-dialog");
-  const form = document.getElementById("delete-form");
-  const input = document.getElementById("delete-password");
-  const lead = document.getElementById("delete-dialog-lead");
-  const error = document.getElementById("delete-password-error");
-  const cancel = document.getElementById("delete-cancel");
-
-  if (!dialog || !form || !input) {
-    const typed = window.prompt(message || "請輸入拆除密碼");
-    return Promise.resolve(typed);
-  }
-
-  return new Promise((resolve) => {
-    let settled = false;
-    const finish = (value) => {
-      if (settled) return;
-      settled = true;
-      dialog.close();
-      resolve(value);
-    };
-
-    if (lead) lead.textContent = message || "請輸入密碼先可以拆除呢個檔案。";
-    if (error) error.hidden = true;
-    input.value = "";
-
-    const onSubmit = (e) => {
-      e.preventDefault();
-      finish(input.value.trim());
-    };
-    const onCancel = () => finish(null);
-    const onClose = () => finish(null);
-
-    form.addEventListener("submit", onSubmit, { once: true });
-    cancel?.addEventListener("click", onCancel, { once: true });
-    dialog.addEventListener("close", onClose, { once: true });
-    dialog.showModal();
-    input.focus();
-  });
+  return true;
 }
 
 function uploadFiles(files) {
