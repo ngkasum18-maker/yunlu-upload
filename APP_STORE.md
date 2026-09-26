@@ -1,94 +1,92 @@
-# 將雲路上架 Apple App Store
+# 將雲路上架 Apple App Store（唔使喺自己電腦裝 Xcode）
 
-這個 repo 已準備 iOS 原生殼（Capacitor）：相機、相簿、App Store 資料、私隱政策。  
-**真正上傳仍需你自己的 Apple Developer 帳戶（每年 USD $99）和一部裝了 Xcode 的 Mac。** 沒有這些，任何雲端環境都無法代你按「Submit for Review」。
+Apple **唔接受**由 Windows／Linux／手機直接上傳 iOS App。簽署 IPA 一定要用 macOS。
 
-## 1. 先部署永久後端（必做）
+你可以**唔使買 Mac、唔使裝 Xcode**：用雲端 Mac（推薦 **Codemagic**）代你編譯、簽署、上傳。
 
-App 會連你的雲路伺服器，不是 iCloud。
+仍然一定要：
 
-永久後端已部署：
+1. 用 **ngkasum18@gmail.com** 加入 [Apple Developer Program](https://developer.apple.com/programs/enroll/)（每年 USD $99）
+2. 喺 App Store Connect 建立 App（Bundle ID：`com.yunlu.app`）
+3. 建立 App Store Connect API Key（App Manager）
 
-**https://yunlu-upload.onrender.com/**
+呢個環境同任何非 Mac 電腦都**無法代替**上面 3 步。
 
-`public/native-config.js` 已指向呢個網址。合併本 PR 到 `main` 之後，Apple 審核需要嘅頁會一齊上線：
+正式網站：https://yunlu-upload.onrender.com/  
+私隱：https://yunlu-upload.onrender.com/privacy.html  
+支援：https://yunlu-upload.onrender.com/support.html  
+Apple ID：ngkasum18@gmail.com
 
-- https://yunlu-upload.onrender.com/privacy.html
-- https://yunlu-upload.onrender.com/support.html
-- https://yunlu-upload.onrender.com/terms.html
+---
 
-## 2. 在 App Store Connect 建立 App
+## 推薦：Codemagic（瀏覽器完成，唔使 Xcode）
 
-1. 加入 [Apple Developer Program](https://developer.apple.com/programs/)
-2. 用 **ngkasum18@gmail.com** 登入 [App Store Connect](https://appstoreconnect.apple.com) → My Apps → +
-3. 填寫：
+Repo 已有 `codemagic.yaml`。
+
+### A. Apple 帳戶（只做一次）
+
+1. 用 ngkasum18@gmail.com 加入 Apple Developer Program 並付款
+2. [App Store Connect](https://appstoreconnect.apple.com) → Users and Access → Integrations → App Store Connect API
+3. 撳 + 建立 Key，權限選 **App Manager**，下載 `.p8`（只可以下載一次）
+4. 記低 **Issuer ID** 同 **Key ID**
+5. My Apps → + → iOS App
    - Name：雲路 Yunlu
-   - Bundle ID：`com.yunlu.app`（先在 Certificates, Identifiers & Profiles 建立）
+   - Bundle ID：`com.yunlu.app`（未有就先去 Certificates, Identifiers & Profiles 建立）
    - SKU：`yunlu-app`
-   - Platform：iOS
-4. 類別：Productivity
-5. 年齡分級：4+
-6. 私隱政策 URL：https://yunlu-upload.onrender.com/privacy.html
+6. 填私隱政策 URL：https://yunlu-upload.onrender.com/privacy.html
 7. 支援 URL：https://yunlu-upload.onrender.com/support.html
-8. 準備帳號／示範密碼：拆除密碼 `1014`（寫在審核備註）
+8. 文案可複製 `store/app-store/metadata/`
 
-文案已放在 `store/app-store/metadata/`，可直接複製。
+### B. Codemagic
 
-## 3. 在 Mac 用 Xcode 封包
+1. 用 GitHub 登入 https://codemagic.io
+2. Add application → 揀 `ngkasum18-maker/yunlu-upload`
+3. Teams → Integrations → **Apple Developer Portal** → 上傳剛才嘅 API Key（名稱用 `codemagic`，同 yaml 入面 `app_store_connect: codemagic` 一致）
+4. Start new build → workflow 揀 **Yunlu iOS → TestFlight**
+5. 等雲端 Mac 編譯。成功後會電郵 ngkasum18@gmail.com，build 會出現喺 App Store Connect → TestFlight
+6. 喺 TestFlight 用自己 iPhone 試完，再跑 **Yunlu iOS → App Store review**  
+   或者喺 App Store Connect 手動 Submit for Review（較穩陣）
+
+Codemagic 免費額度通常夠第一次上架。超額之後先要畀錢。
+
+---
+
+## 其他唔使本地 Xcode 嘅方法
+
+| 方法 | 要唔要 Mac | 說明 |
+|------|------------|------|
+| Codemagic | 唔要 | 本 repo 已設定，最簡單 |
+| GitHub Actions `macos-15` | 唔要 | 要自己放證書／API Key 做 secrets，較煩 |
+| Ionic Appflow | 唔要 | 收費 |
+| 自己電腦 Xcode | 要 | 見下面「可選」 |
+| 只加到主畫面（PWA） | 唔要 | **唔係** App Store，用家仍然用瀏覽器 |
+
+冇任何方法可以跳過 Apple Developer 年費。
+
+---
+
+## 可選：自己有 Mac 先用 Xcode
 
 ```bash
-git clone https://github.com/ngkasum18-maker/yunlu-upload.git
-cd yunlu-upload
 npm install
 npx cap sync ios
 npx cap open ios
 ```
 
-Xcode 內：
+Signing 選 ngkasum18@gmail.com → Archive → Upload。
 
-1. 選 target **App**
-2. Signing & Capabilities → Team 選 **ngkasum18@gmail.com**（加入 Developer Program 後會出現）
-3. 確認 Bundle Identifier 是 `com.yunlu.app`
-4. 確認 Info 有相機／相簿用途說明
-5. 選 Any iOS Device → Product → Archive
-6. Distribute App → App Store Connect → Upload
+---
 
-或用 Fastlane（已設定 `fastlane/Fastfile`）：
+## 截圖同送審
 
-```bash
-bundle exec fastlane ios release
-```
+Apple 最少要一組 iPhone 6.9" 截圖。可以用 TestFlight 安裝後喺 iPhone 截圖。
 
-## 4. 上架截圖
+審核備註：`store/app-store/review/notes.txt`  
+拆除示範密碼：`1014`  
+圖示：`store/app-store/icons/AppIcon-1024.png`
 
-Apple 最少要一組 iPhone 6.9" 截圖（例如 1320×2868）。  
-請用模擬器或真機影：
+Export Compliance：只用標準 HTTPS，選 No。廣告識別符：No。
 
-1. 首頁上載區（影相／相簿／揀檔案）
-2. 檔案庫有相片
-3. 相片放大預覽
-4. Word 閱讀畫面
+---
 
-把 PNG 放到 `store/app-store/screenshots/zh-Hant/`。
-
-App Store 1024×1024 圖示：`store/app-store/icons/AppIcon-1024.png`
-
-## 5. 送審
-
-1. App Store Connect 選擇剛上傳的 build
-2. 貼上 `store/app-store/review/notes.txt` 作為審核備註
-3. Export Compliance：只用標準 HTTPS，選「No」額外加密
-4. 廣告識別符：No
-5. Submit for Review
-
-審核通常數小時到數日。被拒時最常見是 Guideline 4.2（只是網站套殼）——本專案已加原生相機／相簿，並把 UI 包進 App。
-
-## 無法代你完成的步驟
-
-- 付款加入 Apple Developer Program
-- 用你的 Team 簽署 IPA
-- 在 App Store Connect 按 Submit
-
-Apple ID 已設為 **ngkasum18@gmail.com**（`fastlane/Appfile`）。請唔好把 Apple 密碼傳俾任何人。
-
-下一步：合併本 PR，等 Render 重新部署私隱／支援頁；然後用 **ngkasum18@gmail.com** 加入 [Apple Developer Program](https://developer.apple.com/programs/enroll/)，喺 Mac 用 Xcode 簽署並上傳。
+請唔好把 Apple 密碼傳俾任何人。API Key 只放喺 Codemagic／你自己保管。
