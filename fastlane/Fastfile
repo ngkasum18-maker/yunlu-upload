@@ -1,0 +1,36 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Sync Capacitor web assets into the iOS project"
+  lane :sync do
+    sh("npx cap sync ios")
+  end
+
+  desc "Upload App Store listing metadata (requires App Store Connect API key)"
+  lane :metadata do
+    deliver(
+      metadata_path: "./store/app-store/metadata",
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      force: true
+    )
+  end
+
+  desc "Build and upload an iOS release to App Store Connect (Mac + signing required)"
+  lane :release do
+    sh("npx cap sync ios")
+    build_app(
+      workspace: "ios/App/App.xcworkspace",
+      scheme: "App",
+      export_method: "app-store",
+      output_directory: "build/ios"
+    )
+    upload_to_app_store(
+      skip_metadata: false,
+      skip_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false,
+      precheck_include_in_app_purchases: false
+    )
+  end
+end

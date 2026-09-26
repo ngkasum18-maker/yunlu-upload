@@ -5,3 +5,11 @@ uploads/manifest.json
 .DS_Store
 .env
 *.log
+ios/App/Pods
+ios/App/App/public
+android/app/src/main/assets/public
+android/.gradle
+build/
+dist/
+*.ipa
+*.xcarchive

@@ -1,0 +1,11 @@
+app_identifier "com.yunlu.app"
+metadata_path "./store/app-store/metadata"
+screenshots_path "./store/app-store/screenshots"
+overwrite_screenshots false
+force true
+skip_binary_upload true
+skip_screenshots true
+submission_information({
+  export_compliance_uses_encryption: false,
+  add_id_info_uses_idfa: false
+})

@@ -1,0 +1,12 @@
+Yunlu is a simple cloud file app for saving photos and Word documents to your own server, then browsing, reading, downloading, or deleting them anytime.
+
+Features
+• Take a photo and upload instantly
+• Pick multiple photos from the library
+• Upload Word (DOC / DOCX) and read DOCX in-app
+• Filter the library by all / photos / Word
+• Downloads keep original Chinese filenames
+• Password-protected delete
+• Visitor and preview counts
+
+Files are stored on your deployed Yunlu server, not iCloud. Deploy the backend first so the app can reach your library.
