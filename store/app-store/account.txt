@@ -3,3 +3,6 @@ Bundle ID: com.yunlu.app
 SKU: yunlu-app
 App name: 雲路 Yunlu
 Contact: ngkasum18@gmail.com
+Production: https://yunlu-upload.onrender.com/
+Privacy: https://yunlu-upload.onrender.com/privacy.html
+Support: https://yunlu-upload.onrender.com/support.html

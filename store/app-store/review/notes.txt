@@ -2,7 +2,8 @@ App name: 雲路 Yunlu
 Bundle ID: com.yunlu.app
 Apple ID / developer contact: ngkasum18@gmail.com
 
-This app uploads photos and Word files to the reviewer's / developer's own Yunlu cloud server.
+This app uploads photos and Word files to the production Yunlu server:
+https://yunlu-upload.onrender.com/
 
 Demo account / delete password: 1014
 

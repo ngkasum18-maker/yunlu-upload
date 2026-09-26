@@ -7,18 +7,15 @@
 
 App 會連你的雲路伺服器，不是 iCloud。
 
-1. 按 [Deploy to Render](https://render.com/deploy?repo=https://github.com/ngkasum18-maker/yunlu-upload)
-2. 記下 HTTPS 網址，例如 `https://yunlu-upload.onrender.com`
-3. 打開 `public/native-config.js`，改成：
+永久後端已部署：
 
-```js
-window.YUNLU_API_BASE = "https://你的網址.onrender.com";
-```
+**https://yunlu-upload.onrender.com/**
 
-4. 確認這些頁可以在瀏覽器打開（Apple 審核會檢查）：
-   - `/privacy.html` 私隱政策
-   - `/support.html` 支援
-   - `/terms.html` 使用條款
+`public/native-config.js` 已指向呢個網址。合併本 PR 到 `main` 之後，Apple 審核需要嘅頁會一齊上線：
+
+- https://yunlu-upload.onrender.com/privacy.html
+- https://yunlu-upload.onrender.com/support.html
+- https://yunlu-upload.onrender.com/terms.html
 
 ## 2. 在 App Store Connect 建立 App
 
@@ -31,8 +28,8 @@ window.YUNLU_API_BASE = "https://你的網址.onrender.com";
    - Platform：iOS
 4. 類別：Productivity
 5. 年齡分級：4+
-6. 私隱政策 URL：`https://你的網址/privacy.html`
-7. 支援 URL：`https://你的網址/support.html`
+6. 私隱政策 URL：https://yunlu-upload.onrender.com/privacy.html
+7. 支援 URL：https://yunlu-upload.onrender.com/support.html
 8. 準備帳號／示範密碼：拆除密碼 `1014`（寫在審核備註）
 
 文案已放在 `store/app-store/metadata/`，可直接複製。
@@ -94,6 +91,4 @@ App Store 1024×1024 圖示：`store/app-store/icons/AppIcon-1024.png`
 
 Apple ID 已設為 **ngkasum18@gmail.com**（`fastlane/Appfile`）。請唔好把 Apple 密碼傳俾任何人。
 
-完成 Render 永久網址後告訴我，我可以再改 `native-config.js` 和上架文案裡的連結。
-
-下一步：用同一個電郵加入 [Apple Developer Program](https://developer.apple.com/programs/enroll/)，然後喺 Mac 用 Xcode 以呢個帳戶簽署並上傳。
+下一步：合併本 PR，等 Render 重新部署私隱／支援頁；然後用 **ngkasum18@gmail.com** 加入 [Apple Developer Program](https://developer.apple.com/programs/enroll/)，喺 Mac 用 Xcode 簽署並上傳。

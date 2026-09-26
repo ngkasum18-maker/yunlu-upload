@@ -36,7 +36,8 @@ function isNativeApp() {
 }
 
 const API_BASE = String(
-  window.YUNLU_API_BASE || (isNativeApp() ? "https://yunlu-upload.onrender.com" : "")
+  window.YUNLU_API_BASE ||
+    (isNativeApp() ? window.YUNLU_PRODUCTION_URL || "https://yunlu-upload.onrender.com" : "")
 ).replace(/\/$/, "");
 
 function apiUrl(path) {
