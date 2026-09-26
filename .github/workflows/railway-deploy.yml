@@ -1,0 +1,42 @@
+name: Deploy to Railway
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Railway Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Railway token
+        id: check
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "未設定 RAILWAY_TOKEN，略過自動部署。請喺 GitHub Secrets 新增後再跑。"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        if: steps.check.outputs.skip != 'true'
+        run: npm i -g @railway/cli
+
+      - name: Deploy
+        if: steps.check.outputs.skip != 'true'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [ -n "${{ secrets.RAILWAY_SERVICE_ID }}" ]; then
+            railway up --service "${{ secrets.RAILWAY_SERVICE_ID }}" --ci
+          else
+            railway up --ci
+          fi
