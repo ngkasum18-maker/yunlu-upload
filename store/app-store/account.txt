@@ -1,0 +1,5 @@
+Apple ID: ngkasum18@gmail.com
+Bundle ID: com.yunlu.app
+SKU: yunlu-app
+App name: 雲路 Yunlu
+Contact: ngkasum18@gmail.com

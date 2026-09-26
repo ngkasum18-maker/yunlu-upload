@@ -23,7 +23,7 @@ window.YUNLU_API_BASE = "https://你的網址.onrender.com";
 ## 2. 在 App Store Connect 建立 App
 
 1. 加入 [Apple Developer Program](https://developer.apple.com/programs/)
-2. 開啟 [App Store Connect](https://appstoreconnect.apple.com) → My Apps → +
+2. 用 **ngkasum18@gmail.com** 登入 [App Store Connect](https://appstoreconnect.apple.com) → My Apps → +
 3. 填寫：
    - Name：雲路 Yunlu
    - Bundle ID：`com.yunlu.app`（先在 Certificates, Identifiers & Profiles 建立）
@@ -50,7 +50,7 @@ npx cap open ios
 Xcode 內：
 
 1. 選 target **App**
-2. Signing & Capabilities → 勾 Team（你的 Apple ID）
+2. Signing & Capabilities → Team 選 **ngkasum18@gmail.com**（加入 Developer Program 後會出現）
 3. 確認 Bundle Identifier 是 `com.yunlu.app`
 4. 確認 Info 有相機／相簿用途說明
 5. 選 Any iOS Device → Product → Archive
@@ -92,4 +92,8 @@ App Store 1024×1024 圖示：`store/app-store/icons/AppIcon-1024.png`
 - 用你的 Team 簽署 IPA
 - 在 App Store Connect 按 Submit
 
-完成 Render 網址和 Apple 帳戶後，把網址告訴我，我可以再幫你改 `native-config.js` 和上架文案裡的連結。
+Apple ID 已設為 **ngkasum18@gmail.com**（`fastlane/Appfile`）。請唔好把 Apple 密碼傳俾任何人。
+
+完成 Render 永久網址後告訴我，我可以再改 `native-config.js` 和上架文案裡的連結。
+
+下一步：用同一個電郵加入 [Apple Developer Program](https://developer.apple.com/programs/enroll/)，然後喺 Mac 用 Xcode 以呢個帳戶簽署並上傳。

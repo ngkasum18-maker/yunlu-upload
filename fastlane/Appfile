@@ -1,5 +1,6 @@
-# Replace these after you create the App Store Connect record.
+# Apple ID for App Store Connect / Xcode signing.
+# Team IDs are filled after joining the Apple Developer Program.
 app_identifier("com.yunlu.app")
-# apple_id("your-apple-id@example.com")
+apple_id("ngkasum18@gmail.com")
 # itc_team_id("YOUR_ITC_TEAM_ID")
 # team_id("YOUR_TEAM_ID")
