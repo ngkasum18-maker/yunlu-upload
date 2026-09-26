@@ -56,17 +56,15 @@ npm start
    - **iPhone / iPad（Safari）**：分享 → 加到主畫面
    - **桌面 Chrome / Edge**：網址列右側安裝圖示
 
-### Apple App Store（iOS 原生 App）
+### Apple App Store（唔使本地 Xcode）
 
-專案已包含 Capacitor iOS 殼、相機／相簿、私隱政策同上架文案。完整步驟見 [`APP_STORE.md`](./APP_STORE.md)。
+唔使喺自己電腦裝 Xcode：用雲端 Mac（**Codemagic**）編譯並上傳。仍然要 Apple Developer 年費。步驟見 [`APP_STORE.md`](./APP_STORE.md) 同 `codemagic.yaml`。
 
 ```bash
 npm install
 npx cap sync ios
-npx cap open ios   # 需 macOS + Xcode
+npx cap open ios   # 可選：自己有 Mac 先需要
 ```
-
-上架前請先 Render 部署，並把 HTTPS 網址寫入 `public/native-config.js`。
 
 ## API
 
