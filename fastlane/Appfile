@@ -1,0 +1,5 @@
+# Replace these after you create the App Store Connect record.
+app_identifier("com.yunlu.app")
+# apple_id("your-apple-id@example.com")
+# itc_team_id("YOUR_ITC_TEAM_ID")
+# team_id("YOUR_TEAM_ID")

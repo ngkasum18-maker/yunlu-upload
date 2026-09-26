@@ -1,0 +1,33 @@
+{
+  "appId": "com.yunlu.app",
+  "appName": "雲路",
+  "webDir": "public",
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https",
+    "allowNavigation": [
+      "yunlu-upload.onrender.com",
+      "*.onrender.com",
+      "*.railway.app",
+      "*.up.railway.app",
+      "*.trycloudflare.com"
+    ]
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile",
+    "scheme": "Yunlu",
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "backgroundColor": "#152018",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#152018"
+    }
+  }
+}

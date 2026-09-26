@@ -27,6 +27,27 @@ const WORD_EXTS = [".doc", ".docx"];
 let allFiles = [];
 let activeFilter = "all";
 
+function isNativeApp() {
+  try {
+    return Boolean(window.Capacitor?.isNativePlatform?.());
+  } catch {
+    return false;
+  }
+}
+
+const API_BASE = String(
+  window.YUNLU_API_BASE || (isNativeApp() ? "https://yunlu-upload.onrender.com" : "")
+).replace(/\/$/, "");
+
+function apiUrl(path) {
+  return `${API_BASE}${path}`;
+}
+
+function fileUrl(url) {
+  if (!url || /^(https?:|data:|blob:|capacitor:)/i.test(url)) return url;
+  return `${API_BASE}${url}`;
+}
+
 function setStatus(message, kind = "") {
   statusEl.textContent = message;
   statusEl.classList.remove("is-error", "is-ok");
@@ -82,14 +103,14 @@ function renderVisitCount(stats) {
 }
 
 async function loadStats() {
-  const res = await fetch("/api/stats");
+  const res = await fetch(apiUrl("/api/stats"));
   if (!res.ok) return;
   renderVisitCount(await res.json());
 }
 
 async function recordVisit() {
   try {
-    const res = await fetch("/api/stats/visit", { method: "POST" });
+    const res = await fetch(apiUrl("/api/stats/visit"), { method: "POST" });
     if (!res.ok) return;
     renderVisitCount(await res.json());
   } catch {
@@ -100,7 +121,7 @@ async function recordVisit() {
 async function recordPreview(id) {
   if (!id) return;
   try {
-    const res = await fetch("/api/stats/preview", {
+    const res = await fetch(apiUrl("/api/stats/preview"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
@@ -117,7 +138,7 @@ async function recordPreview(id) {
 }
 
 async function loadFiles() {
-  const res = await fetch("/api/files");
+  const res = await fetch(apiUrl("/api/files"));
   if (!res.ok) throw new Error("讀取檔案庫失敗");
   const data = await res.json();
   allFiles = data.files || [];
@@ -180,12 +201,12 @@ function renderGallery() {
     card.setAttribute("role", "button");
 
     const displayName = item.originalName || (kind === "document" ? "Word 文件" : "上載相片");
-    const downloadUrl = `/api/files/${encodeURIComponent(item.id)}/download`;
+    const downloadUrl = apiUrl(`/api/files/${encodeURIComponent(item.id)}/download`);
     card.setAttribute("aria-label", `開啟閱讀 ${displayName}`);
 
     if (kind === "photo") {
       const img = document.createElement("img");
-      img.src = item.url;
+      img.src = fileUrl(item.url);
       img.alt = displayName;
       img.loading = "lazy";
 
@@ -275,7 +296,7 @@ function renderGallery() {
 }
 
 function openLightbox(item, alt, downloadUrl) {
-  lightboxImg.src = item.url || item;
+  lightboxImg.src = fileUrl(item.url || item);
   lightboxImg.alt = alt;
   if (lightboxName) {
     lightboxName.textContent = alt;
@@ -301,7 +322,7 @@ async function ensureMammoth() {
 
 async function openDocumentReader(item, displayName, downloadUrl) {
   if (!reader || !readerBody) {
-    window.open(item.url, "_blank", "noopener");
+    window.open(fileUrl(item.url), "_blank", "noopener");
     return;
   }
 
@@ -324,7 +345,7 @@ async function openDocumentReader(item, displayName, downloadUrl) {
     }
 
     const mammoth = await ensureMammoth();
-    const res = await fetch(item.url);
+    const res = await fetch(fileUrl(item.url));
     if (!res.ok) throw new Error("讀取文件失敗");
     const buffer = await res.arrayBuffer();
     const result = await mammoth.convertToHtml({ arrayBuffer: buffer });
@@ -404,7 +425,7 @@ async function deleteFile(id, kind) {
 async function sendDelete(id, kind, label, password, options = {}) {
   let res;
   try {
-    res = await fetch(`/api/files/${encodeURIComponent(id)}/delete`, {
+    res = await fetch(apiUrl(`/api/files/${encodeURIComponent(id)}/delete`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password }),
@@ -462,7 +483,7 @@ function uploadFiles(files) {
   setStatus("");
 
   const xhr = new XMLHttpRequest();
-  xhr.open("POST", "/api/files");
+  xhr.open("POST", apiUrl("/api/files"));
 
   xhr.upload.addEventListener("progress", (e) => {
     if (!e.lengthComputable) return;
@@ -523,10 +544,76 @@ filterButtons.forEach((btn) => {
   });
 });
 
-pickBtn.addEventListener("click", () => fileInput.click());
-pasteBtn.addEventListener("click", () => {
-  pasteFromClipboard();
-});
+async function nativePhotoToFile(photo, prefix = "yunlu") {
+  const path = photo?.webPath || photo?.path;
+  if (!path) throw new Error("讀唔到相片");
+  const res = await fetch(path);
+  const blob = await res.blob();
+  const ext = (photo.format || "jpeg").replace("jpg", "jpeg");
+  const mime = blob.type || `image/${ext}`;
+  const suffix = mime.includes("png") ? "png" : mime.includes("webp") ? "webp" : "jpg";
+  return new File([blob], `${prefix}-${Date.now()}.${suffix}`, {
+    type: mime,
+    lastModified: Date.now(),
+  });
+}
+
+async function pickNativePhotos(source) {
+  const Camera = window.Capacitor?.Plugins?.Camera;
+  if (!Camera) {
+    setStatus("呢部裝置未支援原生相機", "is-error");
+    return;
+  }
+  try {
+    if (source === "photos" && typeof Camera.pickImages === "function") {
+      const result = await Camera.pickImages({ quality: 90, limit: 12 });
+      const files = [];
+      for (const photo of result.photos || []) {
+        files.push(await nativePhotoToFile(photo, "album"));
+      }
+      if (!files.length) return;
+      uploadFiles(files);
+      return;
+    }
+
+    const photo = await Camera.getPhoto({
+      quality: 90,
+      resultType: "uri",
+      source: source === "camera" ? "CAMERA" : "PHOTOS",
+      saveToGallery: false,
+    });
+    uploadFiles([await nativePhotoToFile(photo, source === "camera" ? "camera" : "album")]);
+  } catch (err) {
+    const message = String(err?.message || err || "");
+    if (/cancel|dismiss|user/i.test(message)) return;
+    setStatus(message || "開啟相機／相簿失敗", "is-error");
+  }
+}
+
+if (pickBtn) {
+  pickBtn.addEventListener("click", () => fileInput.click());
+}
+const cameraBtn = document.getElementById("camera-btn");
+const albumBtn = document.getElementById("album-btn");
+if (isNativeApp()) {
+  document.body.classList.add("is-native-app");
+  if (cameraBtn) {
+    cameraBtn.hidden = false;
+    cameraBtn.addEventListener("click", () => pickNativePhotos("camera"));
+  }
+  if (albumBtn) {
+    albumBtn.hidden = false;
+    albumBtn.addEventListener("click", () => pickNativePhotos("photos"));
+  }
+} else {
+  if (cameraBtn) cameraBtn.hidden = true;
+  if (albumBtn) albumBtn.hidden = true;
+}
+if (pasteBtn) {
+  pasteBtn.addEventListener("click", () => {
+    pasteFromClipboard();
+  });
+}
 fileInput.addEventListener("change", () => {
   if (fileInput.files?.length) uploadFiles(fileInput.files);
 });
@@ -798,7 +885,7 @@ async function handleInstallClick() {
   showInstallDialog("呢個瀏覽器冇自動安裝彈窗。");
 }
 if (installBtn) {
-  if (isStandaloneApp()) {
+  if (isStandaloneApp() || isNativeApp()) {
     installBtn.hidden = true;
   } else {
     installBtn.hidden = false;
@@ -831,7 +918,7 @@ window.addEventListener("appinstalled", () => {
   setStatus("雲路 App 已安裝到裝置", "is-ok");
 });
 
-if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator && !isNativeApp()) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/sw.js", { updateViaCache: "none" })

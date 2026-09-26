@@ -1,0 +1,18 @@
+App name: 雲路 Yunlu
+Bundle ID: com.yunlu.app
+
+This app uploads photos and Word files to the reviewer's / developer's own Yunlu cloud server.
+
+Demo account / delete password: 1014
+
+How to test:
+1. Open the app
+2. Tap 影相 or 相簿 to upload a photo, or 揀檔案 for a Word document
+3. Open an item in the gallery to preview
+4. To delete, tap 刪除 and enter password 1014
+
+Privacy policy: https://yunlu-upload.onrender.com/privacy.html
+Support: https://yunlu-upload.onrender.com/support.html
+
+No tracking. Camera and photo library are used only when the user taps those buttons.
+Export compliance: uses standard HTTPS only (exempt encryption).

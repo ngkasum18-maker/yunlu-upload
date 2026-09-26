@@ -47,12 +47,26 @@ npm start
 
 ## 安裝成 App
 
+### 網站 PWA
+
 1. 用手機或電腦瀏覽器打開**永久網站**（需 HTTPS）
 2. 撳右上角 **安裝 App**
 3. 或者：
    - **Android / Chrome**：選單 → 安裝應用程式
    - **iPhone / iPad（Safari）**：分享 → 加到主畫面
    - **桌面 Chrome / Edge**：網址列右側安裝圖示
+
+### Apple App Store（iOS 原生 App）
+
+專案已包含 Capacitor iOS 殼、相機／相簿、私隱政策同上架文案。完整步驟見 [`APP_STORE.md`](./APP_STORE.md)。
+
+```bash
+npm install
+npx cap sync ios
+npx cap open ios   # 需 macOS + Xcode
+```
+
+上架前請先 Render 部署，並把 HTTPS 網址寫入 `public/native-config.js`。
 
 ## API
 

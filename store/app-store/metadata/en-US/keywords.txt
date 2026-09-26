@@ -1,0 +1,1 @@
+cloud,photos,word,upload,files,documents,gallery,download

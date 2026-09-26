@@ -1,19 +1,33 @@
 {
   "name": "yunlu-upload",
   "version": "1.0.0",
-  "description": "雲路相片同 Word 上載（可安裝 PWA App）",
+  "description": "雲路相片同 Word 上載（可安裝 PWA 同 App Store iOS App）",
   "private": true,
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
-    "health": "node -e \"fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health').then(r=>r.json()).then(console.log)\""
+    "health": "node -e \"fetch('http://127.0.0.1:'+(process.env.PORT||3000)+'/api/health').then(r=>r.json()).then(console.log)\"",
+    "icons": "python3 scripts/generate-app-icons.py",
+    "cap:sync": "npx cap sync",
+    "ios:sync": "npx cap sync ios",
+    "ios:open": "npx cap open ios"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/app": "^7.1.0",
+    "@capacitor/camera": "^7.0.2",
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/ios": "^7.4.3",
+    "@capacitor/splash-screen": "^7.0.3",
+    "@capacitor/status-bar": "^7.0.3",
     "express": "^5.1.0",
     "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
   }
 }
