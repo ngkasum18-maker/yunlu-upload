@@ -100,9 +100,13 @@ function readManifest() {
     let changed = false;
     const normalized = items.map((item) => {
       const originalName = decodeOriginalName(item.originalName || item.filename || "");
-      if (originalName && originalName !== item.originalName) {
+      const id = item.id || (item.filename ? path.parse(item.filename).name : "");
+      if (
+        (originalName && originalName !== item.originalName) ||
+        (id && id !== item.id)
+      ) {
         changed = true;
-        return { ...item, originalName };
+        return { ...item, id: id || item.id, originalName: originalName || item.originalName };
       }
       return item;
     });
@@ -280,17 +284,47 @@ function sanitizeDisplayName(name, fallbackExt) {
   return next;
 }
 
+function fileKey(entry) {
+  if (entry?.id) return String(entry.id);
+  if (entry?.filename) return path.parse(entry.filename).name;
+  return "";
+}
+
+function findManifestIndex(manifest, id) {
+  const wanted = String(id || "");
+  if (!wanted) return -1;
+  return manifest.findIndex((entry) => {
+    const key = fileKey(entry);
+    return key === wanted || entry.filename === wanted;
+  });
+}
+
+function extFromItem(item) {
+  const fromName = path.extname(item.originalName || item.filename || "").toLowerCase();
+  if (ALLOWED_EXTS.has(fromName)) return fromName;
+  const mimeMap = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+    "image/gif": ".gif",
+    "image/heic": ".heic",
+    "image/heif": ".heif",
+    "application/msword": ".doc",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+  };
+  return mimeMap[item.mimeType] || fromName;
+}
+
 function renameById(id, requestedName) {
   const manifest = readManifest();
-  const index = manifest.findIndex((entry) => entry.id === id);
+  const index = findManifestIndex(manifest, id);
   if (index < 0) return { error: "not_found" };
 
   const item = manifest[index];
-  const fallbackExt = path.extname(item.originalName || item.filename || "").toLowerCase();
-  const nextName = sanitizeDisplayName(requestedName, fallbackExt);
+  const nextName = sanitizeDisplayName(requestedName, extFromItem(item));
   if (!nextName) return { error: "invalid_name" };
 
-  const updated = { ...item, originalName: nextName };
+  const updated = { ...item, id: fileKey(item) || item.id, originalName: nextName };
   manifest[index] = updated;
   writeManifest(manifest);
   return { item: updated };

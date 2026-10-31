@@ -26,6 +26,9 @@ const filterButtons = document.querySelectorAll(".filter");
 const WORD_EXTS = [".doc", ".docx"];
 let allFiles = [];
 let activeFilter = "all";
+let previewItem = null;
+const lightboxRename = document.getElementById("lightbox-rename");
+const readerRename = document.getElementById("reader-rename");
 
 function isNativeApp() {
   try {
@@ -307,6 +310,7 @@ function renderGallery() {
 }
 
 function openLightbox(item, alt, downloadUrl) {
+  previewItem = item;
   lightboxImg.src = fileUrl(item.url || item);
   lightboxImg.alt = alt;
   if (lightboxName) {
@@ -337,6 +341,7 @@ async function openDocumentReader(item, displayName, downloadUrl) {
     return;
   }
 
+  previewItem = item;
   readerTitle.textContent = displayName;
   readerTitle.title = displayName;
   readerDownload.href = downloadUrl;
@@ -381,6 +386,12 @@ lightboxClose.addEventListener("click", () => lightbox.close());
 lightbox.addEventListener("click", (e) => {
   if (e.target === lightbox) lightbox.close();
 });
+if (lightboxRename) {
+  lightboxRename.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (previewItem) renameFile(previewItem);
+  });
+}
 
 if (readerClose) {
   readerClose.addEventListener("click", () => reader.close());
@@ -388,6 +399,12 @@ if (readerClose) {
 if (reader) {
   reader.addEventListener("click", (e) => {
     if (e.target === reader) reader.close();
+  });
+}
+if (readerRename) {
+  readerRename.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (previewItem) renameFile(previewItem);
   });
 }
 
@@ -436,6 +453,25 @@ async function renameFile(item) {
   });
 }
 
+function applyRenamedFile(file) {
+  if (!file) return;
+  const name = file.originalName || file.filename || "";
+  if (previewItem && (previewItem.id === file.id || previewItem.filename === file.filename)) {
+    Object.assign(previewItem, file);
+    if (lightbox?.open && lightboxName) {
+      lightboxName.textContent = name;
+      lightboxName.title = name;
+      lightboxImg.alt = name;
+      if (lightboxDownload) lightboxDownload.download = name;
+    }
+    if (reader?.open && readerTitle) {
+      readerTitle.textContent = name;
+      readerTitle.title = name;
+      if (readerDownload) readerDownload.download = name;
+    }
+  }
+}
+
 async function sendRename(id, name, options = {}) {
   let res;
   try {
@@ -465,8 +501,20 @@ async function sendRename(id, name, options = {}) {
     return false;
   }
 
+  let payload = {};
+  try {
+    payload = await res.json();
+  } catch {
+    payload = {};
+  }
+
   setStatus("已改檔名", "is-ok");
   await loadFiles();
+  const updated = payload.file || allFiles.find((entry) => entry.id === id);
+  if (updated) {
+    previewItem = allFiles.find((entry) => entry.id === updated.id) || previewItem;
+    applyRenamedFile(updated);
+  }
   return true;
 }
 

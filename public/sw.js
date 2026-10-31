@@ -1,9 +1,9 @@
-const CACHE = "yunlu-shell-v4";
+const CACHE = "yunlu-shell-v5";
 const SHELL = [
   "/",
   "/index.html",
-  "/styles.css?v=20261031",
-  "/app.js?v=20261031",
+  "/styles.css?v=20261031b",
+  "/app.js?v=20261031b",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",

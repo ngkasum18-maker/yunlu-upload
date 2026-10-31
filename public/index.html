@@ -19,7 +19,7 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+TC:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css?v=20261031" />
+    <link rel="stylesheet" href="/styles.css?v=20261031b" />
   </head>
   <body>
     <div class="atmosphere" aria-hidden="true"></div>
@@ -67,7 +67,7 @@
       <section class="gallery-section" aria-labelledby="gallery-title">
         <div class="section-head">
           <h2 id="gallery-title">雲端檔案庫</h2>
-          <p class="section-sub">剛上載嘅相片同 Word 會出現喺呢度</p>
+          <p class="section-sub">新上載同舊有嘅相片、Word 都可以改名、下載同刪除</p>
           <p class="file-count" id="file-count" aria-live="polite">合共 0 個檔案</p>
           <p class="visit-count" id="visit-count" aria-live="polite">預覽 0 人次 · 訪客 0 人</p>
         </div>
@@ -94,6 +94,7 @@
         <p class="lightbox-name" id="lightbox-name"></p>
         <div class="lightbox-actions">
           <a class="lightbox-download" id="lightbox-download" href="#" download>下載</a>
+          <button type="button" class="lightbox-download" id="lightbox-rename">改名</button>
           <button type="button" class="lightbox-close" id="lightbox-close" aria-label="關閉">
             關閉
           </button>
@@ -107,6 +108,7 @@
         <p class="reader-title" id="reader-title"></p>
         <div class="reader-actions">
           <a class="reader-download" id="reader-download" href="#" download>下載</a>
+          <button type="button" class="reader-download" id="reader-rename">改名</button>
           <button type="button" class="reader-close" id="reader-close" aria-label="關閉">關閉</button>
         </div>
       </div>
@@ -180,6 +182,6 @@
 
     <script src="/native-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.9.0/mammoth.browser.min.js"></script>
-    <script src="/app.js?v=20261031"></script>
+    <script src="/app.js?v=20261031b"></script>
   </body>
 </html>

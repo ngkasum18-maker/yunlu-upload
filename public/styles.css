@@ -726,6 +726,11 @@ main {
   background: rgba(47, 143, 106, 0.85);
 }
 
+.file-card .rename {
+  opacity: 1;
+  transform: none;
+}
+
 .file-card:hover .download,
 .file-card:hover .rename,
 .file-card:hover .delete,
@@ -790,7 +795,8 @@ main {
 }
 
 .lightbox-download,
-.lightbox-close {
+.lightbox-close,
+#lightbox-rename {
   border: 0;
   border-radius: 999px;
   padding: 0.45rem 0.9rem;
@@ -803,7 +809,8 @@ main {
 }
 
 .lightbox-download:hover,
-.lightbox-close:hover {
+.lightbox-close:hover,
+#lightbox-rename:hover {
   background: rgba(255, 255, 255, 0.22);
 }
 
