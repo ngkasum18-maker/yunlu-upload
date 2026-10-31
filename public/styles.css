@@ -507,7 +507,10 @@ main {
   top: 0.5rem;
   right: 0.5rem;
   display: flex;
-  gap: 0.35rem;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.28rem;
   z-index: 2;
 }
 
@@ -697,39 +700,43 @@ main {
 }
 
 .file-card .download,
+.file-card .rename,
 .file-card .delete,
 .photo-card .delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
   border: 0;
   border-radius: 999px;
-  padding: 0.35rem 0.7rem;
+  padding: 0.32rem 0.58rem;
   font-family: var(--font-body);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--sand);
   background: rgba(20, 28, 22, 0.72);
   backdrop-filter: blur(6px);
   cursor: pointer;
   text-decoration: none;
-  opacity: 0;
-  transform: translateY(-4px);
-  transition:
-    opacity 0.25s var(--ease),
-    transform 0.25s var(--ease),
-    background 0.2s var(--ease);
-}
-
-.file-card .download:hover {
-  background: rgba(47, 143, 106, 0.85);
-}
-
-.file-card:hover .download,
-.file-card:hover .delete,
-.file-card:focus-within .download,
-.file-card:focus-within .delete,
-.photo-card:hover .delete,
-.photo-card:focus-within .delete {
+  white-space: nowrap;
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
+  transition: background 0.2s var(--ease);
+}
+
+.file-card .rename {
+  position: relative;
+}
+
+.file-card .rename-icon {
+  width: 0.85em;
+  height: 0.85em;
+  flex-shrink: 0;
+}
+
+.file-card .download:hover,
+.file-card .rename:hover {
+  background: rgba(47, 143, 106, 0.85);
 }
 
 .empty {
@@ -784,7 +791,8 @@ main {
 }
 
 .lightbox-download,
-.lightbox-close {
+.lightbox-close,
+#lightbox-rename {
   border: 0;
   border-radius: 999px;
   padding: 0.45rem 0.9rem;
@@ -797,7 +805,8 @@ main {
 }
 
 .lightbox-download:hover,
-.lightbox-close:hover {
+.lightbox-close:hover,
+#lightbox-rename:hover {
   background: rgba(255, 255, 255, 0.22);
 }
 
@@ -813,10 +822,36 @@ main {
   }
 
   .file-card .download,
+  .file-card .rename,
   .file-card .delete,
   .photo-card .delete {
     opacity: 1;
     transform: none;
+    padding: 0.3rem 0.48rem;
+    font-size: 0.68rem;
+  }
+
+  .file-card .rename {
+    width: 1.85rem;
+    height: 1.85rem;
+    padding: 0;
+  }
+
+  .file-card .rename span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .file-card .rename-icon {
+    width: 0.95rem;
+    height: 0.95rem;
   }
 }
 

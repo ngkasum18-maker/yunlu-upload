@@ -1,6 +1,6 @@
 # 雲路 Yunlu — 相片同 Word 上載
 
-簡單嘅雲端檔案網站：拖放或揀相片／Word 文件，即刻保存，並喺檔案庫瀏覽、閱讀、下載同刪除。
+簡單嘅雲端檔案網站：拖放或揀相片／Word 文件，即刻保存，並喺檔案庫瀏覽、閱讀、改名、下載同刪除。
 
 ## 快速開始（本機）
 
@@ -41,6 +41,7 @@ npm start
 - 顯示預覽人數：網站訪客、瀏覽次數、每個檔案被打開幾多次
 - 相片預覽放大；Word（.docx）撳開即可閱讀；相片同 Word 都可下載（保留中文檔名）
 - Word 顯示完整檔名標題
+- 撳「改名」可以改檔案顯示名稱（新檔同舊檔都得，保留副檔名，唔改實體檔）
 - 刪除記錄需輸入密碼（1014）後先可以拆除（同步刪除實體檔案）
 - 可安裝 App（PWA）：手機／電腦加到主畫面
 - 部署後檔案存喺永久磁碟（`DATA_DIR`）
@@ -79,6 +80,7 @@ npx cap open ios   # 需 macOS + Xcode
 | `GET` | `/api/files` | 列出所有檔案 |
 | `POST` | `/api/files` | 上載檔案（`multipart/form-data`，欄位名 `files`） |
 | `GET` | `/api/files/:id/download` | 下載檔案（保留中文檔名） |
+| `POST` | `/api/files/:id/rename` | 改檔名（`{ name }`，無需密碼） |
 | `DELETE` | `/api/files/:id` | 刪除檔案（需密碼 `1014`） |
 | `GET` | `/api/photos` | 只列出相片（相容舊版） |
 | `POST` | `/api/photos` | 上載相片（欄位名 `photos`） |

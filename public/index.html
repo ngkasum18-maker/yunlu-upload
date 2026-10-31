@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>雲路 Yunlu — 上載相片同 Word</title>
-    <meta name="description" content="雲路上載——相片同 Word 文件，雲端保存、瀏覽同刪除。" />
+    <meta name="description" content="雲路上載——相片同 Word 文件，雲端保存、瀏覽、改名同刪除。" />
     <meta name="theme-color" content="#1f6b4f" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -19,7 +19,7 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Noto+Sans+TC:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css?v=20260926" />
+    <link rel="stylesheet" href="/styles.css?v=20261031d" />
   </head>
   <body>
     <div class="atmosphere" aria-hidden="true"></div>
@@ -33,7 +33,7 @@
       <section class="hero" aria-labelledby="brand-title">
         <div class="hero-copy">
           <h1 id="brand-title" class="brand">雲路</h1>
-          <p class="tagline">相片同 Word，一齊上載到雲端，隨時瀏覽同刪除。</p>
+          <p class="tagline">相片同 Word，一齊上載到雲端，隨時瀏覽、改名同刪除。</p>
         </div>
 
         <form id="upload-form" class="dropzone" aria-label="上載檔案">
@@ -67,7 +67,7 @@
       <section class="gallery-section" aria-labelledby="gallery-title">
         <div class="section-head">
           <h2 id="gallery-title">雲端檔案庫</h2>
-          <p class="section-sub">剛上載嘅相片同 Word 會出現喺呢度</p>
+          <p class="section-sub">新上載同舊有嘅相片、Word 都可以改名、下載同刪除</p>
           <p class="file-count" id="file-count" aria-live="polite">合共 0 個檔案</p>
           <p class="visit-count" id="visit-count" aria-live="polite">預覽 0 人次 · 訪客 0 人</p>
         </div>
@@ -94,6 +94,7 @@
         <p class="lightbox-name" id="lightbox-name"></p>
         <div class="lightbox-actions">
           <a class="lightbox-download" id="lightbox-download" href="#" download>下載</a>
+          <button type="button" class="lightbox-download" id="lightbox-rename">改名</button>
           <button type="button" class="lightbox-close" id="lightbox-close" aria-label="關閉">
             關閉
           </button>
@@ -107,12 +108,35 @@
         <p class="reader-title" id="reader-title"></p>
         <div class="reader-actions">
           <a class="reader-download" id="reader-download" href="#" download>下載</a>
+          <button type="button" class="reader-download" id="reader-rename">改名</button>
           <button type="button" class="reader-close" id="reader-close" aria-label="關閉">關閉</button>
         </div>
       </div>
       <div class="reader-body" id="reader-body" tabindex="0">
         <p class="reader-status" id="reader-status">載入緊…</p>
       </div>
+    </dialog>
+
+    <dialog id="rename-dialog" class="install-dialog" aria-labelledby="rename-dialog-title">
+      <form id="rename-form" class="install-dialog-inner" method="dialog">
+        <h2 id="rename-dialog-title">改檔名</h2>
+        <p class="install-dialog-lead" id="rename-dialog-lead">輸入新嘅檔案名稱。唔改副檔名都得。</p>
+        <label class="delete-password-label" for="rename-input">新檔名</label>
+        <input
+          id="rename-input"
+          class="delete-password-input"
+          type="text"
+          name="name"
+          maxlength="180"
+          autocomplete="off"
+          required
+        />
+        <p class="delete-password-error" id="rename-error" hidden>請輸入有效檔名</p>
+        <div class="install-dialog-actions">
+          <button type="submit" class="cta cta-secondary" id="rename-cancel" value="cancel">取消</button>
+          <button type="submit" class="cta" id="rename-confirm" value="confirm">儲存</button>
+        </div>
+      </form>
     </dialog>
 
     <dialog id="delete-dialog" class="install-dialog" aria-labelledby="delete-dialog-title">
@@ -158,6 +182,6 @@
 
     <script src="/native-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mammoth@1.9.0/mammoth.browser.min.js"></script>
-    <script src="/app.js?v=20260926"></script>
+    <script src="/app.js?v=20261031d"></script>
   </body>
 </html>

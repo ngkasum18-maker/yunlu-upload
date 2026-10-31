@@ -26,6 +26,9 @@ const filterButtons = document.querySelectorAll(".filter");
 const WORD_EXTS = [".doc", ".docx"];
 let allFiles = [];
 let activeFilter = "all";
+let previewItem = null;
+const lightboxRename = document.getElementById("lightbox-rename");
+const readerRename = document.getElementById("reader-rename");
 
 function isNativeApp() {
   try {
@@ -281,6 +284,30 @@ function renderGallery() {
     download.title = `下載 ${displayName}`;
     download.addEventListener("click", (e) => e.stopPropagation());
 
+    const rename = document.createElement("button");
+    rename.type = "button";
+    rename.className = "rename";
+    rename.title = `改名 ${displayName}`;
+    rename.setAttribute("aria-label", `改名 ${displayName}`);
+    const renameIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    renameIcon.setAttribute("class", "rename-icon");
+    renameIcon.setAttribute("viewBox", "0 0 16 16");
+    renameIcon.setAttribute("aria-hidden", "true");
+    const renamePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    renamePath.setAttribute("fill", "currentColor");
+    renamePath.setAttribute(
+      "d",
+      "M11.2 1.4a1.5 1.5 0 0 1 2.1 2.1l-.6.6-2.1-2.1.6-.6Zm-1.3 1.3 2.1 2.1-7.4 7.4H2.5V9.9l7.4-7.2Z"
+    );
+    renameIcon.appendChild(renamePath);
+    const renameLabel = document.createElement("span");
+    renameLabel.textContent = "改名";
+    rename.append(renameIcon, renameLabel);
+    rename.addEventListener("click", (e) => {
+      e.stopPropagation();
+      renameFile(item);
+    });
+
     const del = document.createElement("button");
     del.type = "button";
     del.className = "delete";
@@ -290,13 +317,14 @@ function renderGallery() {
       deleteFile(item.id, kind);
     });
 
-    actions.append(download, del);
+    actions.append(download, rename, del);
     card.appendChild(actions);
     gallery.appendChild(card);
   }
 }
 
 function openLightbox(item, alt, downloadUrl) {
+  previewItem = item;
   lightboxImg.src = fileUrl(item.url || item);
   lightboxImg.alt = alt;
   if (lightboxName) {
@@ -327,6 +355,7 @@ async function openDocumentReader(item, displayName, downloadUrl) {
     return;
   }
 
+  previewItem = item;
   readerTitle.textContent = displayName;
   readerTitle.title = displayName;
   readerDownload.href = downloadUrl;
@@ -371,6 +400,12 @@ lightboxClose.addEventListener("click", () => lightbox.close());
 lightbox.addEventListener("click", (e) => {
   if (e.target === lightbox) lightbox.close();
 });
+if (lightboxRename) {
+  lightboxRename.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (previewItem) renameFile(previewItem);
+  });
+}
 
 if (readerClose) {
   readerClose.addEventListener("click", () => reader.close());
@@ -379,6 +414,122 @@ if (reader) {
   reader.addEventListener("click", (e) => {
     if (e.target === reader) reader.close();
   });
+}
+if (readerRename) {
+  readerRename.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (previewItem) renameFile(previewItem);
+  });
+}
+
+async function renameFile(item) {
+  const dialog = document.getElementById("rename-dialog");
+  const form = document.getElementById("rename-form");
+  const input = document.getElementById("rename-input");
+  const error = document.getElementById("rename-error");
+  const currentName = item.originalName || item.filename || "";
+
+  if (!dialog || !form || !input) {
+    const typed = window.prompt("請輸入新檔名", currentName);
+    if (typed == null) return;
+    await sendRename(item.id, typed.trim());
+    return;
+  }
+
+  if (error) error.hidden = true;
+  input.value = currentName;
+
+  const onSubmit = async (e) => {
+    const submitter = e.submitter;
+    if (submitter && submitter.value === "cancel") return;
+    e.preventDefault();
+    const name = input.value.trim();
+    if (!name) {
+      if (error) {
+        error.textContent = "請輸入新檔名";
+        error.hidden = false;
+      }
+      return;
+    }
+    const ok = await sendRename(item.id, name, { errorEl: error });
+    if (ok) dialog.close("renamed");
+  };
+
+  form.addEventListener("submit", onSubmit);
+  const onClose = () => form.removeEventListener("submit", onSubmit);
+  dialog.addEventListener("close", onClose, { once: true });
+  dialog.showModal();
+  requestAnimationFrame(() => {
+    input.focus();
+    const extStart = input.value.lastIndexOf(".");
+    if (extStart > 0) input.setSelectionRange(0, extStart);
+    else input.select();
+  });
+}
+
+function applyRenamedFile(file) {
+  if (!file) return;
+  const name = file.originalName || file.filename || "";
+  if (previewItem && (previewItem.id === file.id || previewItem.filename === file.filename)) {
+    Object.assign(previewItem, file);
+    if (lightbox?.open && lightboxName) {
+      lightboxName.textContent = name;
+      lightboxName.title = name;
+      lightboxImg.alt = name;
+      if (lightboxDownload) lightboxDownload.download = name;
+    }
+    if (reader?.open && readerTitle) {
+      readerTitle.textContent = name;
+      readerTitle.title = name;
+      if (readerDownload) readerDownload.download = name;
+    }
+  }
+}
+
+async function sendRename(id, name, options = {}) {
+  let res;
+  try {
+    res = await fetch(apiUrl(`/api/files/${encodeURIComponent(id)}/rename`), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+  } catch {
+    setStatus("網絡錯誤，改名失敗。請刷新頁面再試。", "is-error");
+    return false;
+  }
+
+  if (!res.ok) {
+    let message = "改名失敗，請再試";
+    try {
+      const payload = await res.json();
+      if (payload.error) message = payload.error;
+    } catch {
+      // keep default
+    }
+    if (options.errorEl) {
+      options.errorEl.textContent = message;
+      options.errorEl.hidden = false;
+    }
+    setStatus(message, "is-error");
+    return false;
+  }
+
+  let payload = {};
+  try {
+    payload = await res.json();
+  } catch {
+    payload = {};
+  }
+
+  setStatus("已改檔名", "is-ok");
+  await loadFiles();
+  const updated = payload.file || allFiles.find((entry) => entry.id === id);
+  if (updated) {
+    previewItem = allFiles.find((entry) => entry.id === updated.id) || previewItem;
+    applyRenamedFile(updated);
+  }
+  return true;
 }
 
 async function deleteFile(id, kind) {
