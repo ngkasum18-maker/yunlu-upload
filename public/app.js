@@ -287,8 +287,22 @@ function renderGallery() {
     const rename = document.createElement("button");
     rename.type = "button";
     rename.className = "rename";
-    rename.textContent = "改名";
     rename.title = `改名 ${displayName}`;
+    rename.setAttribute("aria-label", `改名 ${displayName}`);
+    const renameIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    renameIcon.setAttribute("class", "rename-icon");
+    renameIcon.setAttribute("viewBox", "0 0 16 16");
+    renameIcon.setAttribute("aria-hidden", "true");
+    const renamePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    renamePath.setAttribute("fill", "currentColor");
+    renamePath.setAttribute(
+      "d",
+      "M11.2 1.4a1.5 1.5 0 0 1 2.1 2.1l-.6.6-2.1-2.1.6-.6Zm-1.3 1.3 2.1 2.1-7.4 7.4H2.5V9.9l7.4-7.2Z"
+    );
+    renameIcon.appendChild(renamePath);
+    const renameLabel = document.createElement("span");
+    renameLabel.textContent = "改名";
+    rename.append(renameIcon, renameLabel);
     rename.addEventListener("click", (e) => {
       e.stopPropagation();
       renameFile(item);
