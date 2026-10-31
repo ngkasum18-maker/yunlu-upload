@@ -11,27 +11,49 @@ npm start
 
 開瀏覽器去 [http://localhost:3000](http://localhost:3000)。
 
-## 永久雲端部署（推薦）
+## 正式網站（永久）
 
-臨時試用連結（trycloudflare）會過期。要**永久上載同保存資料**，請部署到 Render：
+**https://yunlu-upload.onrender.com**
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ngkasum18-maker/yunlu-upload)
+呢個係永久網址：可以上載相片／Word、瀏覽、閱讀、下載、刪除，並可「安裝 App」。  
+資料存在 Render 永久磁碟（`DATA_DIR=/var/data`）。
 
-### 步驟
+## GitHub 設定
 
-1. 撳上面 **Deploy to Render**
-2. 用 GitHub 登入，並授權呢個 repo：`ngkasum18-maker/yunlu-upload`
-3. 建立服務（已包含 **5GB 永久磁碟** 保存上載檔案）
-4. 部署完成後，Render 會俾一個永久網址，例如：  
-   `https://yunlu-upload.onrender.com`
-5. 之後用呢個網址上載／瀏覽／下載；手機亦可「安裝 App」
+詳細步驟見 [`GITHUB_SETUP.md`](./GITHUB_SETUP.md)。
+
+- Repo：https://github.com/ngkasum18-maker/yunlu-upload （Public）
+- Railway 一鍵部署見下方（可選）
+
+## 永久雲端部署（推薦 Railway 一鍵）
+
+臨時試用連結（trycloudflare）會過期。要**永久上載同保存資料**，請用 Railway：
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fngkasum18-maker%2Fyunlu-upload%2Ftree%2Fcursor%2Frailway-one-click-deploy-94c0&envs=DATA_DIR%2CNODE_ENV&DATA_DIRDefault=%2Fdata&NODE_ENVDefault=production)
+
+**一鍵連結：**  
+https://railway.com/new/template?template=https%3A%2F%2Fgithub.com%2Fngkasum18-maker%2Fyunlu-upload%2Ftree%2Fcursor%2Frailway-one-click-deploy-94c0&envs=DATA_DIR%2CNODE_ENV&DATA_DIRDefault=%2Fdata&NODE_ENVDefault=production
+
+### Railway 步驟
+
+1. 撳上面 **Deploy on Railway**
+2. 用 GitHub 登入並授權 repo
+3. 確認環境變數：`DATA_DIR=/data`、`NODE_ENV=production`
+4. 部署後：**Settings → Volumes → Add Volume**，Mount Path 填 `/data`
+5. **Settings → Networking → Generate Domain** 產生永久網址
+6. 用呢個網址上載／瀏覽／下載；手機亦可「安裝 App」
+
+詳細說明見 [`RAILWAY.md`](./RAILWAY.md)。
+
+亦可選 [Deploy to Render](https://render.com/deploy?repo=https://github.com/ngkasum18-maker/yunlu-upload)。
 
 環境變數：
 
 | 變數 | 說明 | 預設 |
 |------|------|------|
-| `PORT` | 服務埠 | `3000` |
-| `DATA_DIR` | 上載資料永久目錄 | `uploads/`（本機）或 `/var/data`（Render） |
+| `PORT` | 服務埠（Railway 會自動注入） | `3000` |
+| `DATA_DIR` | 上載資料永久目錄 | `uploads/`（本機）／`/data`（Railway） |
+| `NODE_ENV` | 執行環境 | `production` |
 
 ## 功能
 
