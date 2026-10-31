@@ -724,6 +724,10 @@ main {
   transition: background 0.2s var(--ease);
 }
 
+.file-card .rename {
+  position: relative;
+}
+
 .file-card .rename-icon {
   width: 0.85em;
   height: 0.85em;
@@ -823,6 +827,31 @@ main {
   .photo-card .delete {
     opacity: 1;
     transform: none;
+    padding: 0.3rem 0.48rem;
+    font-size: 0.68rem;
+  }
+
+  .file-card .rename {
+    width: 1.85rem;
+    height: 1.85rem;
+    padding: 0;
+  }
+
+  .file-card .rename span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .file-card .rename-icon {
+    width: 0.95rem;
+    height: 0.95rem;
   }
 }
 
