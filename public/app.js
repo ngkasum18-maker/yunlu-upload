@@ -281,6 +281,16 @@ function renderGallery() {
     download.title = `下載 ${displayName}`;
     download.addEventListener("click", (e) => e.stopPropagation());
 
+    const rename = document.createElement("button");
+    rename.type = "button";
+    rename.className = "rename";
+    rename.textContent = "改名";
+    rename.title = `改名 ${displayName}`;
+    rename.addEventListener("click", (e) => {
+      e.stopPropagation();
+      renameFile(item);
+    });
+
     const del = document.createElement("button");
     del.type = "button";
     del.className = "delete";
@@ -290,7 +300,7 @@ function renderGallery() {
       deleteFile(item.id, kind);
     });
 
-    actions.append(download, del);
+    actions.append(download, rename, del);
     card.appendChild(actions);
     gallery.appendChild(card);
   }
@@ -379,6 +389,85 @@ if (reader) {
   reader.addEventListener("click", (e) => {
     if (e.target === reader) reader.close();
   });
+}
+
+async function renameFile(item) {
+  const dialog = document.getElementById("rename-dialog");
+  const form = document.getElementById("rename-form");
+  const input = document.getElementById("rename-input");
+  const error = document.getElementById("rename-error");
+  const currentName = item.originalName || item.filename || "";
+
+  if (!dialog || !form || !input) {
+    const typed = window.prompt("請輸入新檔名", currentName);
+    if (typed == null) return;
+    await sendRename(item.id, typed.trim());
+    return;
+  }
+
+  if (error) error.hidden = true;
+  input.value = currentName;
+
+  const onSubmit = async (e) => {
+    const submitter = e.submitter;
+    if (submitter && submitter.value === "cancel") return;
+    e.preventDefault();
+    const name = input.value.trim();
+    if (!name) {
+      if (error) {
+        error.textContent = "請輸入新檔名";
+        error.hidden = false;
+      }
+      return;
+    }
+    const ok = await sendRename(item.id, name, { errorEl: error });
+    if (ok) dialog.close("renamed");
+  };
+
+  form.addEventListener("submit", onSubmit);
+  const onClose = () => form.removeEventListener("submit", onSubmit);
+  dialog.addEventListener("close", onClose, { once: true });
+  dialog.showModal();
+  requestAnimationFrame(() => {
+    input.focus();
+    const extStart = input.value.lastIndexOf(".");
+    if (extStart > 0) input.setSelectionRange(0, extStart);
+    else input.select();
+  });
+}
+
+async function sendRename(id, name, options = {}) {
+  let res;
+  try {
+    res = await fetch(apiUrl(`/api/files/${encodeURIComponent(id)}/rename`), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+  } catch {
+    setStatus("網絡錯誤，改名失敗。請刷新頁面再試。", "is-error");
+    return false;
+  }
+
+  if (!res.ok) {
+    let message = "改名失敗，請再試";
+    try {
+      const payload = await res.json();
+      if (payload.error) message = payload.error;
+    } catch {
+      // keep default
+    }
+    if (options.errorEl) {
+      options.errorEl.textContent = message;
+      options.errorEl.hidden = false;
+    }
+    setStatus(message, "is-error");
+    return false;
+  }
+
+  setStatus("已改檔名", "is-ok");
+  await loadFiles();
+  return true;
 }
 
 async function deleteFile(id, kind) {

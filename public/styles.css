@@ -507,6 +507,8 @@ main {
   top: 0.5rem;
   right: 0.5rem;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.35rem;
   z-index: 2;
 }
@@ -697,6 +699,7 @@ main {
 }
 
 .file-card .download,
+.file-card .rename,
 .file-card .delete,
 .photo-card .delete {
   border: 0;
@@ -718,13 +721,16 @@ main {
     background 0.2s var(--ease);
 }
 
-.file-card .download:hover {
+.file-card .download:hover,
+.file-card .rename:hover {
   background: rgba(47, 143, 106, 0.85);
 }
 
 .file-card:hover .download,
+.file-card:hover .rename,
 .file-card:hover .delete,
 .file-card:focus-within .download,
+.file-card:focus-within .rename,
 .file-card:focus-within .delete,
 .photo-card:hover .delete,
 .photo-card:focus-within .delete {
@@ -813,6 +819,7 @@ main {
   }
 
   .file-card .download,
+  .file-card .rename,
   .file-card .delete,
   .photo-card .delete {
     opacity: 1;

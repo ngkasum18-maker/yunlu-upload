@@ -256,6 +256,46 @@ function deleteById(id) {
   return item;
 }
 
+function sanitizeDisplayName(name, fallbackExt) {
+  let decoded = decodeOriginalName(String(name || ""));
+  decoded = decoded.replace(/[\u0000-\u001f\u007f]/g, "");
+  decoded = decoded.replace(/[<>:"|?*]/g, "_");
+  decoded = decoded.replace(/^.*[/\\]/, "").trim();
+  decoded = decoded.replace(/^\.+/, "").replace(/\.+$/, "").trim();
+  if (!decoded) return "";
+
+  const ext = path.extname(decoded).toLowerCase();
+  const stem = (ext ? decoded.slice(0, -ext.length) : decoded).replace(/[. ]+$/g, "").trim();
+  if (!stem) return "";
+
+  const keepExt = ALLOWED_EXTS.has(fallbackExt)
+    ? fallbackExt
+    : ALLOWED_EXTS.has(ext)
+      ? ext
+      : "";
+  let next = keepExt ? `${stem}${keepExt}` : stem;
+  if (next.length > 180) {
+    next = `${stem.slice(0, Math.max(1, 180 - keepExt.length))}${keepExt}`;
+  }
+  return next;
+}
+
+function renameById(id, requestedName) {
+  const manifest = readManifest();
+  const index = manifest.findIndex((entry) => entry.id === id);
+  if (index < 0) return { error: "not_found" };
+
+  const item = manifest[index];
+  const fallbackExt = path.extname(item.originalName || item.filename || "").toLowerCase();
+  const nextName = sanitizeDisplayName(requestedName, fallbackExt);
+  if (!nextName) return { error: "invalid_name" };
+
+  const updated = { ...item, originalName: nextName };
+  manifest[index] = updated;
+  writeManifest(manifest);
+  return { item: updated };
+}
+
 function submittedDeletePassword(req) {
   const header = req.get("x-delete-password");
   const body = req.body && typeof req.body === "object" ? req.body.password : "";
@@ -354,6 +394,18 @@ app.post("/api/files/:id/delete", requireDeletePassword, (req, res) => {
     return res.status(404).json({ error: "搵唔到檔案" });
   }
   res.json({ ok: true });
+});
+
+app.post("/api/files/:id/rename", (req, res) => {
+  const name = req.body && typeof req.body === "object" ? req.body.name : "";
+  const result = renameById(req.params.id, name);
+  if (result.error === "not_found") {
+    return res.status(404).json({ error: "搵唔到檔案" });
+  }
+  if (result.error === "invalid_name") {
+    return res.status(400).json({ error: "請輸入有效檔名" });
+  }
+  res.json({ ok: true, file: result.item });
 });
 
 // Backward-compatible photo endpoints
