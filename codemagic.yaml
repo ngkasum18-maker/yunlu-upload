@@ -1,0 +1,128 @@
+# Cloud Mac build — publish 雲路 to App Store Connect without installing Xcode locally.
+# Docs: APP_STORE.md
+#
+# One-time setup in the browser:
+# 1. Join Apple Developer Program with ngkasum18@gmail.com
+# 2. App Store Connect → Users and Access → Integrations → App Store Connect API
+#    Create a key with App Manager, download the .p8 once
+# 3. https://codemagic.io → add this GitHub repo
+# 4. Teams → Integrations → Apple Developer Portal → upload that API key
+# 5. Create the iOS app in App Store Connect (bundle id com.yunlu.app)
+# 6. Start the "yunlu-ios-testflight" workflow
+#
+# Codemagic's Mac creates certificates and the IPA, then uploads it.
+
+workflows:
+  yunlu-ios-testflight:
+    name: Yunlu iOS → TestFlight (no local Xcode)
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: codemagic
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.yunlu.app
+      vars:
+        XCODE_WORKSPACE: App.xcworkspace
+        XCODE_SCHEME: App
+        BUNDLE_ID: com.yunlu.app
+      xcode: latest
+      cocoapods: default
+      node: 20
+    scripts:
+      - name: Install npm dependencies
+        script: |
+          npm ci
+      - name: Sync Capacitor iOS project
+        script: |
+          npx cap sync ios
+      - name: CocoaPods
+        script: |
+          cd ios/App
+          pod install --repo-update
+      - name: Use code signing profiles
+        script: |
+          xcode-project use-profiles
+      - name: Set build number
+        script: |
+          cd ios/App
+          agvtool new-version -all $BUILD_NUMBER
+      - name: Build App Store IPA
+        script: |
+          cd ios/App
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - ios/App/build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      email:
+        recipients:
+          - ngkasum18@gmail.com
+        notify:
+          success: true
+          failure: true
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
+
+  yunlu-ios-app-store:
+    name: Yunlu iOS → App Store review (no local Xcode)
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: codemagic
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.yunlu.app
+      vars:
+        XCODE_WORKSPACE: App.xcworkspace
+        XCODE_SCHEME: App
+        BUNDLE_ID: com.yunlu.app
+      xcode: latest
+      cocoapods: default
+      node: 20
+    scripts:
+      - name: Install npm dependencies
+        script: |
+          npm ci
+      - name: Sync Capacitor iOS project
+        script: |
+          npx cap sync ios
+      - name: CocoaPods
+        script: |
+          cd ios/App
+          pod install --repo-update
+      - name: Use code signing profiles
+        script: |
+          xcode-project use-profiles
+      - name: Set build number
+        script: |
+          cd ios/App
+          agvtool new-version -all $BUILD_NUMBER
+      - name: Build App Store IPA
+        script: |
+          cd ios/App
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - ios/App/build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      email:
+        recipients:
+          - ngkasum18@gmail.com
+        notify:
+          success: true
+          failure: true
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
+        submit_to_app_store: true
+        cancel_previous_submissions: false
+        release_type: MANUAL
