@@ -38,9 +38,19 @@ function isNativeApp() {
   }
 }
 
+function isStorePreview() {
+  try {
+    return new URLSearchParams(window.location.search).get("preview") === "appstore";
+  } catch {
+    return false;
+  }
+}
+
 const API_BASE = String(
   window.YUNLU_API_BASE ||
-    (isNativeApp() ? window.YUNLU_PRODUCTION_URL || "https://yunlu-upload.onrender.com" : "")
+    (isNativeApp() || isStorePreview()
+      ? window.YUNLU_PRODUCTION_URL || "https://yunlu-upload.onrender.com"
+      : "")
 ).replace(/\/$/, "");
 
 function apiUrl(path) {
@@ -747,15 +757,15 @@ if (pickBtn) {
 }
 const cameraBtn = document.getElementById("camera-btn");
 const albumBtn = document.getElementById("album-btn");
-if (isNativeApp()) {
+if (isNativeApp() || isStorePreview()) {
   document.body.classList.add("is-native-app");
   if (cameraBtn) {
     cameraBtn.hidden = false;
-    cameraBtn.addEventListener("click", () => pickNativePhotos("camera"));
+    if (isNativeApp()) cameraBtn.addEventListener("click", () => pickNativePhotos("camera"));
   }
   if (albumBtn) {
     albumBtn.hidden = false;
-    albumBtn.addEventListener("click", () => pickNativePhotos("photos"));
+    if (isNativeApp()) albumBtn.addEventListener("click", () => pickNativePhotos("photos"));
   }
 } else {
   if (cameraBtn) cameraBtn.hidden = true;
