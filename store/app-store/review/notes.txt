@@ -12,6 +12,7 @@ How to test:
 2. Tap 影相 or 相簿 to upload a photo, or 揀檔案 for a Word document
 3. Open an item in the gallery to preview
 4. To delete, tap 刪除 and enter password 1014
+5. To rename, tap the pencil / 改名 control
 
 Privacy policy: https://yunlu-upload.onrender.com/privacy.html
 Support: https://yunlu-upload.onrender.com/support.html

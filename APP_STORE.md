@@ -1,40 +1,48 @@
 # 將雲路上架 Apple App Store
 
-這個 repo 已準備 iOS 原生殼（Capacitor）：相機、相簿、App Store 資料、私隱政策。  
-**真正上傳仍需你自己的 Apple Developer 帳戶（每年 USD $99）和一部裝了 Xcode 的 Mac。** 沒有這些，任何雲端環境都無法代你按「Submit for Review」。
+iOS 原生殼、文案、圖示、私隱頁同 iPhone 6.9" 截圖已經齊。  
+**呢部雲端電腦冇 Xcode，亦唔能夠代你付款或按 Submit for Review。** 你要用 **ngkasum18@gmail.com** 加入 Apple Developer Program，再喺 Mac 上傳。
 
-## 1. 先部署永久後端（必做）
+## 而家已準備好
 
-App 會連你的雲路伺服器，不是 iCloud。
+| 項目 | 狀態 |
+|------|------|
+| Bundle ID | `com.yunlu.app` |
+| 版本 | 1.0 (build 1)，iPhone only |
+| 後端 | https://yunlu-upload.onrender.com/ |
+| 私隱政策 | https://yunlu-upload.onrender.com/privacy.html |
+| 支援 | https://yunlu-upload.onrender.com/support.html |
+| App Store 文案 | `store/app-store/metadata/` |
+| 1024 圖示 | `store/app-store/icons/AppIcon-1024.png` |
+| iPhone 截圖 | `store/app-store/screenshots/` |
+| 審核備註 | `store/app-store/review/notes.txt`（拆除密碼 1014） |
 
-永久後端已部署：
+## 你要做嘅 4 步（必須用你嘅 Apple 帳戶）
 
-**https://yunlu-upload.onrender.com/**
+### 1. 加入 Apple Developer Program（每年 USD $99）
 
-`public/native-config.js` 已指向呢個網址。合併本 PR 到 `main` 之後，Apple 審核需要嘅頁會一齊上線：
+用 **ngkasum18@gmail.com** 打開：  
+https://developer.apple.com/programs/enroll/
 
-- https://yunlu-upload.onrender.com/privacy.html
-- https://yunlu-upload.onrender.com/support.html
-- https://yunlu-upload.onrender.com/terms.html
+未付款前，App Store Connect 唔可以建立 App，Xcode 亦簽唔到正式 IPA。
 
-## 2. 在 App Store Connect 建立 App
+### 2. 喺 App Store Connect 建立 App
 
-1. 加入 [Apple Developer Program](https://developer.apple.com/programs/)
-2. 用 **ngkasum18@gmail.com** 登入 [App Store Connect](https://appstoreconnect.apple.com) → My Apps → +
-3. 填寫：
+1. 登入 https://appstoreconnect.apple.com → My Apps → **+**
+2. 先去 [Identifiers](https://developer.apple.com/account/resources/identifiers/list) 建立 Bundle ID：`com.yunlu.app`
+3. 建立 App：
    - Name：雲路 Yunlu
-   - Bundle ID：`com.yunlu.app`（先在 Certificates, Identifiers & Profiles 建立）
+   - Bundle ID：`com.yunlu.app`
    - SKU：`yunlu-app`
-   - Platform：iOS
-4. 類別：Productivity
-5. 年齡分級：4+
+   - 平台：iOS
+4. 類別：Productivity（次要 Photo & Video）
+5. 年齡：4+
 6. 私隱政策 URL：https://yunlu-upload.onrender.com/privacy.html
 7. 支援 URL：https://yunlu-upload.onrender.com/support.html
-8. 準備帳號／示範密碼：拆除密碼 `1014`（寫在審核備註）
+8. 把 `store/app-store/metadata/` 同 `store/app-store/screenshots/` 嘅文字／PNG 貼上去
+9. 圖示用 `store/app-store/icons/AppIcon-1024.png`
 
-文案已放在 `store/app-store/metadata/`，可直接複製。
-
-## 3. 在 Mac 用 Xcode 封包
+### 3. 喺 Mac 用 Xcode 封包上傳
 
 ```bash
 git clone https://github.com/ngkasum18-maker/yunlu-upload.git
@@ -44,51 +52,28 @@ npx cap sync ios
 npx cap open ios
 ```
 
-Xcode 內：
+Xcode：
 
-1. 選 target **App**
-2. Signing & Capabilities → Team 選 **ngkasum18@gmail.com**（加入 Developer Program 後會出現）
-3. 確認 Bundle Identifier 是 `com.yunlu.app`
-4. 確認 Info 有相機／相簿用途說明
-5. 選 Any iOS Device → Product → Archive
-6. Distribute App → App Store Connect → Upload
+1. Target **App** → Signing & Capabilities → Team 選 **ngkasum18@gmail.com**
+2. Bundle Identifier 確認係 `com.yunlu.app`
+3. 裝置選 **Any iOS Device (arm64)**
+4. Product → Archive
+5. Distribute App → App Store Connect → Upload
 
-或用 Fastlane（已設定 `fastlane/Fastfile`）：
+### 4. 送審
 
-```bash
-bundle exec fastlane ios release
-```
+1. App Store Connect 揀剛上傳嘅 build
+2. 貼上 `store/app-store/review/notes.txt`
+3. Export Compliance：只用標準 HTTPS → **No**
+4. 廣告識別符 → **No**
+5. **Submit for Review**
 
-## 4. 上架截圖
+審核通常數小時到數日。被拒最常見係 Guideline 4.2（純網頁套殼）——本 App 已有原生相機／相簿。
 
-Apple 最少要一組 iPhone 6.9" 截圖（例如 1320×2868）。  
-請用模擬器或真機影：
-
-1. 首頁上載區（影相／相簿／揀檔案）
-2. 檔案庫有相片
-3. 相片放大預覽
-4. Word 閱讀畫面
-
-把 PNG 放到 `store/app-store/screenshots/zh-Hant/`。
-
-App Store 1024×1024 圖示：`store/app-store/icons/AppIcon-1024.png`
-
-## 5. 送審
-
-1. App Store Connect 選擇剛上傳的 build
-2. 貼上 `store/app-store/review/notes.txt` 作為審核備註
-3. Export Compliance：只用標準 HTTPS，選「No」額外加密
-4. 廣告識別符：No
-5. Submit for Review
-
-審核通常數小時到數日。被拒時最常見是 Guideline 4.2（只是網站套殼）——本專案已加原生相機／相簿，並把 UI 包進 App。
-
-## 無法代你完成的步驟
+## 無法代你完成
 
 - 付款加入 Apple Developer Program
-- 用你的 Team 簽署 IPA
-- 在 App Store Connect 按 Submit
+- 用你嘅 Team 簽署 IPA
+- 喺 App Store Connect 撳 Submit
 
-Apple ID 已設為 **ngkasum18@gmail.com**（`fastlane/Appfile`）。請唔好把 Apple 密碼傳俾任何人。
-
-下一步：合併本 PR，等 Render 重新部署私隱／支援頁；然後用 **ngkasum18@gmail.com** 加入 [Apple Developer Program](https://developer.apple.com/programs/enroll/)，喺 Mac 用 Xcode 簽署並上傳。
+請唔好把 Apple 密碼傳俾任何人。

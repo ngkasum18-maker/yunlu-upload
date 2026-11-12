@@ -11,7 +11,8 @@
     "icons": "python3 scripts/generate-app-icons.py",
     "cap:sync": "npx cap sync",
     "ios:sync": "npx cap sync ios",
-    "ios:open": "npx cap open ios"
+    "ios:open": "npx cap open ios",
+    "store:screenshots": "node scripts/capture-app-store-screenshots.mjs"
   },
   "engines": {
     "node": ">=18"
